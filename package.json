@@ -1,0 +1,11 @@
+{
+  "name": "canvascove",
+  "version": "1.0.0",
+  "description": "CanvasCove is a vibrant digital sanctuary designed to foster the connection between art enthusiasts and creators. It would be an interactive website built using the MERN stack (Javascript frameworks)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
