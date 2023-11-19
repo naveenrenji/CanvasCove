@@ -24,6 +24,7 @@ try {
     dateOfBirth: new Date("1990-01-01"),
     gender: GENDERS.OTHER,
   });
+  console.log("Created test user!");
 } catch (error) {
   console.log(error);
 }
@@ -36,11 +37,12 @@ try {
     lastName: "User",
     displayName: "Anonymouse",
     encryptedPassword: await new PasswordService("Password@123").encrypt(),
-    phone: "09087654321",
+    phone: "0987654321",
     dateOfBirth: new Date("1995-01-01"),
     gender: GENDERS.FEMALE,
     role: USER_ROLES.ARTIST,
   });
+  console.log("Created artist user!");
 } catch (error) {
   console.log(error);
 }
