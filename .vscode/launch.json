@@ -1,0 +1,38 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch BE Server",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
+      // "port": 9229,
+      "cwd": "${workspaceFolder}/server",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch FE Client",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
+      "cwd": "${workspaceFolder}/client",
+      "console": "integratedTerminal",
+      "env": {
+        "BROWSER": "none",
+        "PORT": "3001",
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch BE & FE",
+      "configurations": ["Launch BE Server", "Launch FE Client"]
+    }
+  ]
+}
