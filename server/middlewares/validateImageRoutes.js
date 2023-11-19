@@ -43,7 +43,7 @@ const validateImageRoutes = async (req, res, next) => {
           .send({ message: "Please provide a valid art id!" });
       }
 
-      if (art.userId.toString() !== req.currentUser._id.toString()) {
+      if (art.artist.toString() !== req.currentUser._id.toString()) {
         return res.status(403).send({
           message: "You are not authorized to upload images for this art!",
         });

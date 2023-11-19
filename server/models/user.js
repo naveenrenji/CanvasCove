@@ -4,7 +4,7 @@ import JwtService from "../services/jwt-service.js";
 import PasswordService from "../services/password-service.js";
 
 import { isValidEmail, validateDOB } from "../validators/helpers.js";
-import { GENDERS, ROLES } from "../constants.js";
+import { GENDERS, USER_ROLES } from "../constants.js";
 
 const UserSchema = new Schema(
   {
@@ -16,6 +16,10 @@ const UserSchema = new Schema(
     lastName: {
       type: String,
       required: [true, "Last name is required!"],
+      trim: true,
+    },
+    displayName: {
+      type: String,
       trim: true,
     },
     email: {
@@ -81,9 +85,21 @@ const UserSchema = new Schema(
     },
     role: {
       type: String,
-      enum: Object.value(ROLES),
-      default: ROLES.CONNOISSEUR,
+      enum: Object.value(USER_ROLES),
+      default: USER_ROLES.CONNOISSEUR,
     },
+    followers: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    followedBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     timestamps: true,
@@ -111,6 +127,7 @@ const UserSchema = new Schema(
 UserSchema.index({
   firstName: "text",
   lastName: "text",
+  displayName: "text",
   email: "text",
 });
 

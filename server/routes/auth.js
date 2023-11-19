@@ -24,4 +24,27 @@ authRouter.route("/login").post(async (req, res) => {
   }
 });
 
+authRouter.route("/sign-up").post(async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    let cleanEmail = xss(email);
+    let cleanPassword = xss(password);
+
+    cleanEmail = validateEmail(cleanEmail);
+    cleanPassword = validatePassword(cleanPassword);
+
+    // TODO: clean and validate other fields
+
+    const user = await auth.createUser({
+      email: cleanEmail,
+      password: cleanPassword,
+    });
+    const accesstoken = user.generateToken();
+
+    res.json({ message: "User created successfully", accesstoken });
+  } catch (error) {
+    return res.status(error?.status || 500).json({ error: error?.message });
+  }
+});
+
 export default authRouter;

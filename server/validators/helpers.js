@@ -1,6 +1,7 @@
 import { isValidObjectId } from "mongoose";
 import { DateTime } from "luxon";
 import { City, State } from "country-state-city";
+import { INTERACTION_TYPES } from "../constants";
 
 const COUNTRY_CODE = "US";
 
@@ -256,6 +257,18 @@ const validateGender = (value, name) => {
   return value;
 };
 
+const validateInteractionType = (value) => {
+  value = validateString(value, "Interaction Type");
+
+  if (!Object.values(INTERACTION_TYPES).includes(value)) {
+    throw {
+      status: 400,
+      message: `Invalid Interaction Type`,
+    };
+  }
+  return value;
+};
+
 export {
   isValidEmail,
   isValidPassword,
@@ -271,4 +284,5 @@ export {
   validateName,
   validateGender,
   validateStateAndCity,
+  validateInteractionType,
 };
