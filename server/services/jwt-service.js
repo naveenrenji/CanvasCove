@@ -11,7 +11,7 @@ class JwtService {
   }
 
   static async decrypt(token) {
-    return (await jwt.verify(token, "secret")) || {};
+    return (await jwt.verify(token, process.env.JWT_SECRET)) || {};
   }
 }
 

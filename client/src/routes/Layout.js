@@ -8,7 +8,7 @@ const Layout = () => {
   return (
     <Card>
       {/* TODO - Add navigation bar */}
-      <Container maxWidth="md">
+      <Container>
         <Outlet />
       </Container>
     </Card>

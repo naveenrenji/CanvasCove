@@ -1,4 +1,4 @@
-import { USER_ROLES } from "../constants";
+import { USER_ROLES } from "../constants.js";
 
 export default function isArtist(req, res, next) {
   if (!req.currentUser) {
