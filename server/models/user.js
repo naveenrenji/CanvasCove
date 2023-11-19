@@ -85,7 +85,7 @@ const UserSchema = new Schema(
     },
     role: {
       type: String,
-      enum: Object.value(USER_ROLES),
+      enum: Object.values(USER_ROLES),
       default: USER_ROLES.CONNOISSEUR,
     },
     followers: [

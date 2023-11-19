@@ -1,7 +1,7 @@
 import { isValidObjectId } from "mongoose";
 import { DateTime } from "luxon";
 import { City, State } from "country-state-city";
-import { INTERACTION_TYPES } from "../constants";
+import { INTERACTION_TYPES } from "../constants.js";
 
 const COUNTRY_CODE = "US";
 

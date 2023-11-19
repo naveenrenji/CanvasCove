@@ -7,5 +7,5 @@ CanvasCove is a vibrant digital sanctuary designed to foster the connection betw
 3. Create a .env file and add data from .env.example
 4. Run local mongodb server
 5. Run `npm install`
-6. Run `npm run seed` to create data
+6. Run `npm run seed` to create data. Click ctrl+c to exit once it says 'Seeding completed!'
 7. Run `npm start` to start the server

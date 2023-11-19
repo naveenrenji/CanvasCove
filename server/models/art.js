@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { ART_TYPES, ART_VISIBILITY, INTERACTION_TYPES } from "../constants";
+import { ART_TYPES, ART_VISIBILITY, INTERACTION_TYPES } from "../constants.js";
 
 const InteractionSchema = new Schema({
   user: {
