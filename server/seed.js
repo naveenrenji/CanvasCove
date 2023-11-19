@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import { GENDERS, USER_ROLES } from "./constants.js";
-import { User } from "./models/index.js";
+import { ART_TYPES, GENDERS, USER_ROLES } from "./constants.js";
+import { Art, User } from "./models/index.js";
 import { userData } from "./data/index.js";
 import PasswordService from "./services/password-service.js";
 
@@ -50,6 +50,19 @@ try {
 
 if (testUser && artistUser) {
   console.log("Users created successfully!");
+  try {
+    await Art.create({
+      title: "Test Art",
+      description: "This is a test art",
+      artist: artistUser._id,
+      artType: ART_TYPES.PAINTING,
+      priceInCents: 1999,
+    });
+    console.log("Created test art!");
+  } catch (error) {
+    console.log(error);
+  }
+
   try {
     await userData.updateFollowingStatus(testUser, artistUser._id)
     console.log("Users followed each other successfully!");

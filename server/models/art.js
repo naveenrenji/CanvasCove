@@ -35,7 +35,7 @@ const ArtSchema = new Schema(
       enum: Object.values(ART_TYPES),
       required: [true, "Art type is required!"],
     },
-    price: {
+    priceInCents: {
       type: Number,
       required: [true, "Price is required!"],
     },

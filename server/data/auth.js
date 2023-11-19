@@ -30,4 +30,5 @@ export const login = async (email, password) => {
   }
 };
 
+// TODO: Create user from signup process
 export const createUser = async ({ email, password, ...more }) => {};
