@@ -51,13 +51,13 @@ try {
 if (testUser && artistUser) {
   console.log("Users created successfully!");
   try {
-    await userData.updateFollowingStatus(testUser._id, artistUser._id)
+    await userData.updateFollowingStatus(testUser, artistUser._id)
     console.log("Users followed each other successfully!");
   } catch (error) {
     console.log(error);
   }
 } else {
-  console.log("Users not created!");
+  console.log("Required users not created!");
 }
 
 console.log("Seeding completed!");
