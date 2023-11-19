@@ -77,4 +77,17 @@ userRouter.route("/:id/art").get(async (req, res) => {
   }
 });
 
+userRouter.route("/:id/update-follow-status").put(async (req, res) => {
+  try {
+    const { id } = req.params;
+    let cleanId = xss(id);
+    cleanId = validateId(cleanId);
+
+    const user = await userData.updateFollowingStatus(req.currentUser, id);
+    return res.json({ user: formatItemResponse(req, user, "User") });
+  } catch (error) {
+    return res.status(error?.status || 500).json({ error: error?.message });
+  }
+});
+
 export default userRouter;

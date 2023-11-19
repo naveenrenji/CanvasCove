@@ -50,7 +50,7 @@ try {
 if (testUser && artistUser) {
   console.log("Users created successfully!");
   try {
-    await testUser.followedBy.push(artistUser._id);
+    await testUser.following.push(artistUser._id);
     await artistUser.followers.push(testUser._id);
     await testUser.save();
     await artistUser.save();

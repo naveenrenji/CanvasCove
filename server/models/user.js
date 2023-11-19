@@ -94,7 +94,7 @@ const UserSchema = new Schema(
         ref: "User",
       },
     ],
-    followedBy: [
+    following: [
       {
         type: Schema.Types.ObjectId,
         ref: "User",
