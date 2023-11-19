@@ -29,3 +29,5 @@ export const login = async (email, password) => {
     throw { status: 401, message: error?.message };
   }
 };
+
+export const createUser = async ({ email, password, ...more }) => {};

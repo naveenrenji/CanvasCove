@@ -1,9 +1,10 @@
 import { Router } from "express";
 import xss from "xss";
 
-import { artData } from "../data/index.js";
+import { artData, userData } from "../data/index.js";
 import { isArtCreator, isArtist } from "../middlewares/index.js";
 import { validateId, validateInteractionType } from "../validators/helpers.js";
+import { formatItemListResponse, formatItemResponse } from "../utils.js";
 
 const artRouter = Router();
 
@@ -32,7 +33,14 @@ artRouter.route("/search").post(async (req, res) => {
   }
 });
 
-artRouter.route("/").post(isArtist, async (req, res) => {});
+artRouter.route("/").post(isArtist, async (req, res) => {
+  try {
+    const artList = await userData.getArtList(req.currentUser, req.currentUser._id);
+    return res.json({ artList: formatItemListResponse(req, artList, "Art") });
+  } catch (error) {
+    return res.status(error?.status || 500).json({ error: error?.message });
+  }
+});
 
 artRouter.route("/:id").get(async (req, res) => {
   try {

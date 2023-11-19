@@ -77,18 +77,19 @@ class ImageService {
       filename = file.filename;
     }
 
-    const existingImages = await Image.aggregate([
-      {
-        $match: {
-          imageableType,
-          imageableId,
-        },
-      },
-    ]);
+    // Enable this for single image per model
+    // const existingImages = await Image.aggregate([
+    //   {
+    //     $match: {
+    //       imageableType,
+    //       imageableId,
+    //     },
+    //   },
+    // ]);
 
-    if (existingImages) {
-      await ImageService.deleteImages(existingImages);
-    }
+    // if (existingImages) {
+    //   await ImageService.deleteImages(existingImages);
+    // }
 
     const image = await Image.create({
       name: file.originalname,

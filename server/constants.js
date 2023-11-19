@@ -29,4 +29,4 @@ export const INTERACTION_TYPES = {
 };
 
 export const FEED_LIMIT = 1;
-export const TOP_COMMENTS_COUNT = 3;
+export const TOP_COMMENTS_COUNT = 1;

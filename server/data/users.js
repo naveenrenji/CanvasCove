@@ -1,8 +1,9 @@
 import { INTERACTION_TYPES } from "../constants";
-import { User } from "../models/index.js";
+import { Art, User } from "../models/index.js";
 
+// TODO: Get user and his images.
+// If user is artist, get his art as well. Else get users liked art. limit to latest 5
 export const getUser = async (currentUser, userId) => {
-  // TODO: Get user and images
   return currentUser;
 };
 
@@ -18,8 +19,9 @@ export const getArtList = async (currentUser, userId) => {
   let artList;
 
   try {
-    // Get the art and current user interactions
-    artList = await Art.find({ artist: userId });
+    artList = await Art.withMetrics(currentUser, {
+      $match: { artist: userId },
+    });
   } catch (error) {
     throw { status: 400, message: error.toString() };
   }
@@ -36,9 +38,15 @@ export const getMyLikedArt = async (currentUser) => {
 
   try {
     // Get the art which the current user has liked
-    artList = await Art.find({
-      "interactions.user": currentUser._id,
-      "interactions.type": INTERACTION_TYPES.LIKE,
+    artList = await Art.withMetrics(currentUser, {
+      $match: {
+        interactions: {
+          $elemMatch: {
+            user: currentUser._id,
+            type: "like",
+          },
+        },
+      },
     });
   } catch (error) {
     throw { status: 400, message: error.toString() };
@@ -47,7 +55,11 @@ export const getMyLikedArt = async (currentUser) => {
   return artList;
 };
 
+// TODO: Update current user and respond with updated user by calling getUser function.
 export const updateCurrentUser = async (currentUser, body) => {};
+
+// TODO: Implement search users
+export const searchUsers = async (currentUser, { keyword }) => {};
 
 export const updateFollowingStatus = async (currentUser, userId) => {
   if (!currentUser) {
@@ -97,5 +109,7 @@ export const updateFollowingStatus = async (currentUser, userId) => {
     throw { status: 400, message: error.toString() };
   }
 
+  // TODO: Update this when getUser is implemented.
+  // return getUser(currentUser, userId);
   return user;
 };

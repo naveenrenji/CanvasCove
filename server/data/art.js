@@ -30,44 +30,41 @@ export const getFeed = async (currentUser, page = 1) => {
               $filter: {
                 input: "$interactions",
                 as: "interaction",
-                cond: { $eq: ["$$interaction.type", "like"] },
+                cond: { $eq: ["$$interaction.type", INTERACTION_TYPES.LIKE] },
               },
             },
           },
-          totalCommentsCount: { $size: "$comments" },
-        },
-      },
-      {
-        $addFields: {
-          likesCount: {
+          viewsCount: {
             $size: {
               $filter: {
                 input: "$interactions",
                 as: "interaction",
-                cond: { $eq: ["$$interaction.type", "like"] },
+                cond: { $eq: ["$$interaction.type", INTERACTION_TYPES.VIEW] },
               },
             },
           },
-          allCommentsCount: { $size: "$comments" },
-          recencyHours: {
-            $divide: [
-              { $subtract: [new Date(), "$createdAt"] },
-              1000 * 60 * 60,
-            ],
-          }, // Recency in hours
+          commentsCount: { $size: "$comments" },
         },
       },
       {
         $addFields: {
-          recencyScore: {
-            $cond: [
-              { $eq: ["$recencyHours", 0] },
-              Number.MAX_SAFE_INTEGER,
-              { $divide: [1, "$recencyHours"] },
-            ],
+          recencyInMillis: {
+            $subtract: [Date.now(), "$createdAt"],
           },
+          recencyScore: {
+            $divide: [
+              1000 * 60 * 60,
+              {
+                $cond: [
+                  { $eq: ["$recencyInMillis", 0] },
+                  Number.MAX_SAFE_INTEGER,
+                  { $divide: [1, "$recencyInMillis"] },
+                ],
+              },
+            ],
+          }, // Recency in hours
           score: {
-            $sum: ["$likesCount", "$allCommentsCount", "$recencyScore"],
+            $sum: ["$likesCount", "$commentsCount", "$recencyScore"],
           },
         },
       },
@@ -76,14 +73,7 @@ export const getFeed = async (currentUser, page = 1) => {
       { $limit: FEED_LIMIT }, // Limit the number of results
       {
         $addFields: {
-          topComments: { $slice: ["$comments", TOP_COMMENTS_COUNT] }, // Get the top 3 comments
-        },
-      },
-      {
-        $addFields: {
-          commentsCount: {
-            $subtract: ["$totalCommentsCount", { $size: "$topComments" }], // Get the count of comments(excluding top 3)
-          },
+          topComments: { $slice: ["$comments", TOP_COMMENTS_COUNT] }, // Get the top 1 comment(s)
         },
       },
       {
@@ -100,12 +90,14 @@ export const getFeed = async (currentUser, page = 1) => {
           "artist._id": 0,
           "artist.firstName": 1,
           "artist.lastName": 1,
+          "artist.displayName": 1,
           "artist.email": 1,
           score: 1,
           images: 1,
           title: 1,
           description: 1,
           likesCount: 1,
+          viewsCount: 1,
           commentsCount: 1,
           topComments: 1,
           createdAt: 1,
@@ -188,13 +180,42 @@ export const saveArtInteraction = async (
     throw { status: 400, message: error.toString() };
   }
 
+  return getArt(currentUser, artId);
+};
+
+// TODO: Implement this using withMetrics function as it will retrun art metrics, if any.
+export const searchArt = async (currentUser, { keyword }) => {};
+
+export const getArt = async (currentUser, artId) => {
+  if (!currentUser) {
+    throw { status: 401, message: "Unauthorised request" };
+  }
+
+  if (!artId) {
+    throw { status: 400, message: "Please provide a valid art id!" };
+  }
+
+  let art;
+
+  try {
+    result = await Art.withMetrics(currentUser, { _id: artId });
+    art = result?.[0];
+  } catch (error) {
+    throw { status: 400, message: error.toString() };
+  }
+
+  if (!art) {
+    throw { status: 400, message: "Please provide a valid art id!" };
+  }
+
   return art;
 };
 
-export const searchArt = async (currentUser, { keyword }) => {};
-
-export const getArt = async (currentUser, artId) => {};
-
+// TODO: Implement this and call getArt function to return updated art
+// DONT USE WITHMETRICS FUNCTION TO FETCH INITIAL ART DATA. ONLY USE IT TO FETCH FINAL UPDATED ART DATA.
+// Refer saveArtInteraction function for example.
 export const updateArt = async (currentUser, artId, body) => {};
 
+// TODO: Implement this and return boolean if its deleted or not. Make sure images are deleted as well(Call ImageService.deleteImages with art images array)
+// DONT USE WITHMETRICS FUNCTION
 export const deleteArt = async (currentUser, artId) => {};

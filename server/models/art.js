@@ -83,6 +83,43 @@ const ArtSchema = new Schema(
   },
   {
     timestamps: true,
+    statics: {
+      async withMetrics(currentUser, matchObj) {
+        return await this.aggregate([
+          matchObj,
+          {
+            $addFields: {
+              totalLikes: {
+                $size: {
+                  $filter: {
+                    input: "$interactions",
+                    as: "interaction",
+                    cond: { $eq: ["$$interaction.type", "like"] },
+                  },
+                },
+              },
+              totalViews: {
+                $size: {
+                  $filter: {
+                    input: "$interactions",
+                    as: "interaction",
+                    cond: { $eq: ["$$interaction.type", "view"] },
+                  },
+                },
+              },
+              totalComments: { $size: "$comments" },
+              currentUserInteractions: {
+                $filter: {
+                  input: "$interactions",
+                  as: "interaction",
+                  cond: { $eq: ["$$interaction.user", currentUser._id] },
+                },
+              },
+            },
+          },
+        ]);
+      },
+    },
   }
 );
 
