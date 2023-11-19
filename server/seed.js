@@ -4,6 +4,7 @@ dotenv.config();
 
 import { GENDERS, USER_ROLES } from "./constants.js";
 import { User } from "./models/index.js";
+import { userData } from "./data/index.js";
 import PasswordService from "./services/password-service.js";
 
 await mongoose
@@ -50,10 +51,7 @@ try {
 if (testUser && artistUser) {
   console.log("Users created successfully!");
   try {
-    await testUser.following.push(artistUser._id);
-    await artistUser.followers.push(testUser._id);
-    await testUser.save();
-    await artistUser.save();
+    await userData.updateFollowingStatus(testUser._id, artistUser._id)
     console.log("Users followed each other successfully!");
   } catch (error) {
     console.log(error);

@@ -1,4 +1,3 @@
-import { INTERACTION_TYPES } from "../constants";
 import { Art, User } from "../models/index.js";
 
 // TODO: Get user and his images.
@@ -74,6 +73,7 @@ export const updateFollowingStatus = async (currentUser, userId) => {
 
   try {
     user = await User.findById(userId);
+    currentUser = await User.findById(currentUser._id);
   } catch (error) {
     throw { status: 400, message: error.toString() };
   }
@@ -83,10 +83,10 @@ export const updateFollowingStatus = async (currentUser, userId) => {
   }
 
   const isFollowing =
-    currentUser.following.find(
+    currentUser.following?.find(
       (follower) => follower.toString() === userId.toString()
     ) &&
-    user.follwers.find(
+    user.follwers?.find(
       (following) => following.toString() === currentUser._id.toString()
     );
 
@@ -98,6 +98,9 @@ export const updateFollowingStatus = async (currentUser, userId) => {
       (following) => following.toString() !== currentUser._id.toString()
     );
   } else {
+    currentUser.following ||= [];
+    user.followers ||= [];
+
     currentUser.following.push(userId);
     user.followers.push(currentUser._id);
   }
