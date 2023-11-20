@@ -29,7 +29,7 @@ const Routes = () => {
           }
         />
         <Route
-          path="/signup"
+          path="/sign-up"
           element={
             <AuthHoc>
               <Signup />
