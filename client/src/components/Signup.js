@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import "./styles.css";
-import { GENDERS } from "../constants";
-import { Form, Button, Card } from 'react-bootstrap';
+import { GENDERS, AGE_DATE_RANGE } from "../constants";
+import { 
+    formatDate,
+    validateName,
+    validateEmail,
+    validatePassword,
+    validateConfirmPassword
+} from "../helpers";
+import { Form, Button, Card, Alert } from 'react-bootstrap';
 
 
 const Signup = () => {
     // Fields - username, firstname, lastname, email, password, confirmPassword, dob, gender
-    const [userName, setUserName] = useState({
+    const [displayName, setDisplayName] = useState({
         value: "",
         error: ""
     });
@@ -38,46 +45,64 @@ const Signup = () => {
         value: "",
         error: ""
     });
+    const isFormInvalid = () => {
+        return !!displayName.error || !!firstName.error || !!lastName.error
+            || !!email.error || !!password.error || !!confirmPassword.error || !!dob.error || !!gender.error;
+    };
+    const [error, setError] = useState()
 
-    const handleSubmit = async () => {
-        // TODO - validate form and proceed
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        e.stopPropagation();
+        if (isFormInvalid) {
+            setError("Make sure you have filled all fields without any errors")
+        } else {
+            setError();
+            alert("Good to go!")
+        }
     }
     return (
     <Card className="signup-form">
         <h2 className="signup-header">Sign Up</h2>
-        <Form>
+        <Form
+            onChange={() => setError()}
+        >
         <Form.Group className="mb-3" controlId="formBasicUsername">
-            <Form.Label>Username</Form.Label>
+            <Form.Label>Display Name</Form.Label>
             <Form.Control
+                required
                 type="text"
-                placeholder="Enter username"
-                value={userName.value}
+                placeholder="Enter display name"
+                value={displayName.value}
                 onChange={(e) => {
-                    setUserName({
-                        error: e?.target?.value ? "" : "Username is required",
-                        value: e?.target?.value || ""
-                    })
+                    const value = e?.target?.value
+                    setDisplayName({
+                        error: validateName("Display name", value),
+                        value
+                    });
                 }}
-                isInvalid={!!userName.error}
+                isInvalid={!!displayName.error}
             />
             <Form.Control.Feedback type="invalid">
-                {userName.error}
+                {displayName.error}
             </Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formBasicUsername">
             <Form.Label>First Name</Form.Label>
             <Form.Control
+                required
                 type="text"
-                placeholder="Enter username"
+                placeholder="Enter first name"
                 value={firstName.value}
                 onChange={(e) => {
+                    const value = e?.target?.value
                     setFirstName({
-                        error: e?.target?.value ? "" : "First name is required",
-                        value: e?.target?.value || ""
-                    })
+                        error: validateName("First name", value),
+                        value
+                    });
                 }}
-                isInvalid={!!userName.error}
+                isInvalid={!!firstName.error}
             />
             <Form.Control.Feedback type="invalid">
                 {firstName.error}
@@ -87,14 +112,16 @@ const Signup = () => {
         <Form.Group className="mb-3" controlId="formBasicUsername">
             <Form.Label>Last Name</Form.Label>
             <Form.Control
+                required
                 type="text"
-                placeholder="Enter username"
+                placeholder="Enter last name"
                 value={lastName.value}
                 onChange={(e) => {
+                    const value = e?.target?.value
                     setLastName({
-                        error: e?.target?.value ? "" : "Last name is required",
-                        value: e?.target?.value || ""
-                    })
+                        error: validateName("Last name", value),
+                        value
+                    });
                 }}
                 isInvalid={!!lastName.error}
             />
@@ -106,14 +133,16 @@ const Signup = () => {
         <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
             <Form.Control
+                required
                 type="email"
                 placeholder="Enter email"
                 value={email.value}
                 onChange={(e) => {
+                    const value = e?.target?.value
                     setEmail({
-                        error: e?.target?.value ? "" : "Email is required",
-                        value: e?.target?.value || ""
-                    })
+                        error: validateEmail(value),
+                        value
+                    });
                 }}
                 isInvalid={!!email.error}
             />
@@ -125,13 +154,15 @@ const Signup = () => {
         <Form.Group className="mb-3" controlId="formGenderSelect">
             <Form.Label>Gender</Form.Label>
             <Form.Control
+                required
                 as="select"
                 value={gender.value}
                 onChange={(e) => {
+                    const value = e?.target?.value
                     setGender({
-                        error: e?.target?.value ? "" : "Gender is required",
-                        value: e?.target?.value || ""
-                    })
+                        error: value ? "" : "Gender is required",
+                        value
+                    });
                 }}
                 isInvalid={!!gender.error}
             >
@@ -148,14 +179,18 @@ const Signup = () => {
         <Form.Group className="mb-3" controlId="formGenderSelect">
             <Form.Label>Date of Birth</Form.Label>
             <Form.Control
+                required
                 type="date"
                 value={dob.value}
                 onChange={(e) => {
+                    const value = e?.target?.value
                     setDob({
-                        error: e?.target?.value ? "" : "Date of birth is required",
-                        value: e?.target?.value || ""
-                    })
+                        error: value ? "" : "Date of birth is required",
+                        value
+                    });
                 }}
+                min={formatDate(AGE_DATE_RANGE.MIN)}
+                max={formatDate(AGE_DATE_RANGE.MAX)}
                 isInvalid={!!dob.error}
             >
             </Form.Control>
@@ -167,14 +202,16 @@ const Signup = () => {
         <Form.Group className="mb-3" controlId="formBasicPassword">
             <Form.Label>Password</Form.Label>
             <Form.Control
+                required
                 type="password"
                 placeholder="Password"
                 value={password.value}
                 onChange={(e) => {
+                    const value = e?.target?.value;
                     setPassword({
-                        error: e?.target?.value ? "" : "Password is required",
-                        value: e?.target?.value || ""
-                    })
+                        error: validatePassword(value),
+                        value
+                    });
                 }}
                 isInvalid={!!password.error}
             />
@@ -186,14 +223,16 @@ const Signup = () => {
         <Form.Group className="mb-3" controlId="formBasicConfirmPassword">
             <Form.Label>Confirm Password</Form.Label>
             <Form.Control
+                required
                 type="password"
                 placeholder="Confirm Password"
                 value={confirmPassword.value}
                 onChange={(e) => {
+                    const value = e?.target?.value
                     setConfirmPassword({
-                        error: e?.target?.value ? "" : "Password needs to be confirmed",
-                        value: e?.target?.value || ""
-                    })
+                        error: validateConfirmPassword(value, password),
+                        value,
+                    });
                 }}
                 isInvalid={!!confirmPassword.error}
             />
@@ -202,17 +241,25 @@ const Signup = () => {
             </Form.Control.Feedback>
         </Form.Group>
 
+        {
+            error ? (
+                <Alert variant="danger">
+                {error}
+              </Alert>
+            ) : null
+        }
+
         <Button
-            variant="primary"
             type="submit"
-            style={{ width: '100%' }}
+            variant="primary"
+            disabled={isFormInvalid()}
             onClick={handleSubmit}
+            style={{ width: '100%' }}
         >
             Sign Me Up
         </Button>
-        </Form>
-    </Card>
-    );
-};
+    </Form>
+</Card>
+)};
 
 export default Signup;

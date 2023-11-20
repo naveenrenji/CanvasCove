@@ -9,3 +9,13 @@ export const INTERACTION_TYPES = {
   LIKE: "like",
   VIEW: "view",
 };
+
+export const NAME_LENGTHS = {
+  MIN: 3,
+  MAX: 20
+};
+
+export const AGE_DATE_RANGE = {
+  MIN: new Date((new Date()).getFullYear() - 75, (new Date()).getMonth(), (new Date()).getDate()),
+  MAX: new Date((new Date()).getFullYear() - 15, (new Date()).getMonth(), (new Date()).getDate())
+};
