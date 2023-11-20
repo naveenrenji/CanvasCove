@@ -1,8 +1,8 @@
 export const GENDERS = {
   MALE: "Male",
   FEMALE: "Female",
-  NON_BINARY: "Non-Binary",
   OTHER: "Other",
+  PREFER_NOT_TO_SAY: "Prefer Not to Say",
 };
 
 export const USER_ROLES = {

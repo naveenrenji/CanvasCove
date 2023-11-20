@@ -4,7 +4,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { Image } from "../models/index.js";
+import { Art, Image, User } from "../models/index.js";
 import { unlink } from "node:fs/promises";
 
 let _s3_client;
@@ -77,20 +77,6 @@ class ImageService {
       filename = file.filename;
     }
 
-    // Enable this for single image per model
-    // const existingImages = await Image.aggregate([
-    //   {
-    //     $match: {
-    //       imageableType,
-    //       imageableId,
-    //     },
-    //   },
-    // ]);
-
-    // if (existingImages) {
-    //   await ImageService.deleteImages(existingImages);
-    // }
-
     const image = await Image.create({
       name: file.originalname,
       filename,
@@ -141,7 +127,7 @@ class ImageService {
     }
   }
 
-  static async deleteImages(images) {
+  static async deleteImages({ images, imageableType, imageableId }) {
     if (!images) return [];
 
     if (ImageService.s3Enabled()) {
@@ -162,9 +148,31 @@ class ImageService {
       }
     }
     let imageIdList = images.map((image) => image._id);
+    switch (imageableType) {
+      case "Art":
+        const art = await Art.findById(imageableId);
+        art.images = art.images.filter((imageId) => {
+          return !imageIdList.includes(imageId);
+        });
+        await art.save();
+        break;
+
+      case "User":
+        const user = await User.findById(imageableId);
+        user.images = user.images.filter((imageId) => {
+          return !imageIdList.includes(imageId);
+        });
+        await user.save();
+        break;
+
+      default:
+        break;
+    }
+
     const deletedImages = await Image.deleteMany({
       _id: { $in: imageIdList },
     });
+
     return deletedImages.deletedCount !== 0;
   }
 }

@@ -11,7 +11,7 @@ const artRouter = Router();
 artRouter.route("/feed").get(async (req, res) => {
   try {
     const feed = await artData.getFeed(req.currentUser, req?.query?.page || 1);
-    return res.json({ feed: formatItemListResponse(req, feed, "Art") });
+    return res.json({ feed: await formatItemListResponse(req, feed, "Art") });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -27,7 +27,7 @@ artRouter.route("/search").post(async (req, res) => {
     const artList = await artData.searchArt(req.currentUser, {
       keyword: cleanKeyword,
     });
-    return res.json({ artList: formatItemListResponse(req, artList, "Art") });
+    return res.json({ artList: await formatItemListResponse(req, artList, "Art") });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -35,8 +35,9 @@ artRouter.route("/search").post(async (req, res) => {
 
 artRouter.route("/").post(isArtist, async (req, res) => {
   try {
-    const artList = await userData.getArtList(req.currentUser, req.currentUser._id);
-    return res.json({ artList: formatItemListResponse(req, artList, "Art") });
+    // TODO: clean and validate body
+    const createdArt = await artData.createArt(req.currentUser, req.body);
+    return res.json({ art: await formatItemResponse(req, createdArt, "Art") });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -49,7 +50,7 @@ artRouter.route("/:id").get(async (req, res) => {
     cleanId = validateId(cleanId);
 
     const art = await artData.getArt(req.currentUser, id);
-    return res.json({ art: formatItemResponse(req, art, "Art") });
+    return res.json({ art: await formatItemResponse(req, art, "Art") });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -66,7 +67,7 @@ artRouter.route("/:id/interact").post(async (req, res) => {
     cleanInteractionType = validateInteractionType(cleanInteractionType);
 
     const art = await artData.saveArtInteraction(req.currentUser, id, cleanInteractionType);
-    return res.json({ art: formatItemResponse(req, art, "Art") });
+    return res.json({ art: await formatItemResponse(req, art, "Art") });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -81,7 +82,7 @@ artRouter.route("/:id").put(isArtist, isArtCreator, async (req, res) => {
     // TODO: clean and validate body
 
     const art = await artData.updateArt(req.currentUser, id, req.body);
-    return res.json({ art: formatItemResponse(req, art, "Art") });
+    return res.json({ art: await formatItemResponse(req, art, "Art") });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -94,7 +95,7 @@ artRouter.route("/:id").delete(isArtist, isArtCreator, async (req, res) => {
     cleanId = validateId(cleanId);
 
     const art = await artData.deleteArt(req.currentUser, id);
-    return res.json({ user: formatItemResponse(req, art, "Art") });
+    return res.json({ user: await formatItemResponse(req, art, "Art") });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }

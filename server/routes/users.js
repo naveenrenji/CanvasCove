@@ -10,7 +10,7 @@ const userRouter = Router();
 userRouter.route("/me").get(async (req, res) => {
   try {
     const user = await userData.getUser(req.currentUser, req.currentUser._id);
-    return res.json({ user: formatItemResponse(req, user) });
+    return res.json({ user: await formatItemResponse(req, user) });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -20,7 +20,7 @@ userRouter.route("/me").put(async (req, res) => {
   try {
     // TODO: clean and validate body
     const user = await userData.updateCurrentUser(req.currentUser, req.body);
-    return res.json({ user: formatItemResponse(req, user) });
+    return res.json({ user: await formatItemResponse(req, user) });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -29,7 +29,7 @@ userRouter.route("/me").put(async (req, res) => {
 userRouter.route("/me/liked-art").get(async (req, res) => {
   try {
     const artList = await userData.getMyLikedArt(req.currentUser);
-    return res.json({ artList: formatItemListResponse(req, artList, "Art") });
+    return res.json({ artList: await formatItemListResponse(req, artList, "Art") });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -45,7 +45,7 @@ userRouter.route("/search").post(async (req, res) => {
     const users = await userData.searchUsers(req.currentUser, {
       keyword: cleanKeyword,
     });
-    return res.json({ users: formatItemListResponse(req, users, "User") });
+    return res.json({ users: await formatItemListResponse(req, users, "User") });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -58,7 +58,7 @@ userRouter.route("/:id").get(async (req, res) => {
     cleanId = validateId(cleanId);
 
     const user = await userData.getUser(req.currentUser, id);
-    return res.json({ user: formatItemResponse(req, user) });
+    return res.json({ user: await formatItemResponse(req, user) });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -71,7 +71,7 @@ userRouter.route("/:id/art").get(async (req, res) => {
     cleanId = validateId(cleanId);
 
     const artList = await userData.getArtList(req.currentUser, id);
-    return res.json({ artList: formatItemListResponse(req, artList, "Art") });
+    return res.json({ artList: await formatItemListResponse(req, artList, "Art") });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -84,7 +84,7 @@ userRouter.route("/:id/update-follow-status").put(async (req, res) => {
     cleanId = validateId(cleanId);
 
     const user = await userData.updateFollowingStatus(req.currentUser, id);
-    return res.json({ user: formatItemResponse(req, user, "User") });
+    return res.json({ user: await formatItemResponse(req, user, "User") });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }

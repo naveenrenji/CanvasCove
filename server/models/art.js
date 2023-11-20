@@ -1,5 +1,10 @@
 import { Schema, model } from "mongoose";
-import { ART_TYPES, ART_VISIBILITY, INTERACTION_TYPES } from "../constants.js";
+import {
+  ART_TYPES,
+  ART_VISIBILITY,
+  INTERACTION_TYPES,
+  TOP_COMMENTS_COUNT,
+} from "../constants.js";
 
 const InteractionSchema = new Schema({
   user: {
@@ -89,7 +94,7 @@ const ArtSchema = new Schema(
           matchObj,
           {
             $addFields: {
-              totalLikes: {
+              likesCount: {
                 $size: {
                   $filter: {
                     input: "$interactions",
@@ -98,7 +103,7 @@ const ArtSchema = new Schema(
                   },
                 },
               },
-              totalViews: {
+              viewsCount: {
                 $size: {
                   $filter: {
                     input: "$interactions",
@@ -107,7 +112,8 @@ const ArtSchema = new Schema(
                   },
                 },
               },
-              totalComments: { $size: "$comments" },
+              commentsCount: { $size: "$comments" },
+              topComments: { $slice: ["$comments", TOP_COMMENTS_COUNT] }, // Get the top 1 comment(s)
               currentUserInteractions: {
                 $filter: {
                   input: "$interactions",
@@ -115,6 +121,34 @@ const ArtSchema = new Schema(
                   cond: { $eq: ["$$interaction.user", currentUser._id] },
                 },
               },
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "artist",
+              foreignField: "_id",
+              as: "artist",
+            },
+          },
+          { $unwind: "$artist" },
+          {
+            $project: {
+              "artist._id": 1,
+              "artist.firstName": 1,
+              "artist.lastName": 1,
+              "artist.displayName": 1,
+              "artist.images": 1,
+              currentUserInteractions: 1,
+              priceInCents: 1,
+              images: 1,
+              title: 1,
+              description: 1,
+              likesCount: 1,
+              viewsCount: 1,
+              commentsCount: 1,
+              topComments: 1,
+              createdAt: 1,
             },
           },
         ]);

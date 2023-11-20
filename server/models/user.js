@@ -21,6 +21,8 @@ const UserSchema = new Schema(
     displayName: {
       type: String,
       trim: true,
+      required: [true, "Display name is required!"],
+      unique: [true, "Display name already exists!"],
     },
     email: {
       type: String,
@@ -98,6 +100,12 @@ const UserSchema = new Schema(
       {
         type: Schema.Types.ObjectId,
         ref: "User",
+      },
+    ],
+    images: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Image",
       },
     ],
   },

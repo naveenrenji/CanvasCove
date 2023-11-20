@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import {
   FEED_LIMIT,
   INTERACTION_TYPES,
@@ -49,7 +50,7 @@ export const getFeed = async (currentUser, page = 1) => {
       {
         $addFields: {
           recencyInMillis: {
-            $subtract: [Date.now(), "$createdAt"],
+            $subtract: [new Date(), "$createdAt"],
           },
           recencyScore: {
             $divide: [
@@ -74,6 +75,13 @@ export const getFeed = async (currentUser, page = 1) => {
       {
         $addFields: {
           topComments: { $slice: ["$comments", TOP_COMMENTS_COUNT] }, // Get the top 1 comment(s)
+          currentUserInteractions: {
+            $filter: {
+              input: "$interactions",
+              as: "interaction",
+              cond: { $eq: ["$$interaction.user", currentUser._id] },
+            },
+          },
         },
       },
       {
@@ -87,12 +95,14 @@ export const getFeed = async (currentUser, page = 1) => {
       { $unwind: "$artist" },
       {
         $project: {
-          "artist._id": 0,
+          "artist._id": 1,
           "artist.firstName": 1,
           "artist.lastName": 1,
           "artist.displayName": 1,
-          "artist.email": 1,
+          "artist.images": 1,
+          currentUserInteractions: 1,
           score: 1,
+          priceInCents: 1,
           images: 1,
           title: 1,
           description: 1,
@@ -114,6 +124,9 @@ export const getFeed = async (currentUser, page = 1) => {
 
   return feed;
 };
+
+// TODO: Implement this and return created art by calling getArt function.
+export const createArt = async (currentUser, body) => {};
 
 export const saveArtInteraction = async (
   currentUser,
@@ -148,7 +161,7 @@ export const saveArtInteraction = async (
   }
 
   const existingInteraction = art.interactions.find(
-    (interaction) => interaction.user.toString === currentUser._id.toString()
+    (interaction) => interaction.user.toString() === currentUser._id.toString()
   );
 
   if (!existingInteraction) {
@@ -195,10 +208,12 @@ export const getArt = async (currentUser, artId) => {
     throw { status: 400, message: "Please provide a valid art id!" };
   }
 
-  let art;
+  let result, art;
 
   try {
-    result = await Art.withMetrics(currentUser, { _id: artId });
+    result = await Art.withMetrics(currentUser, {
+      $match: { _id: new mongoose.Types.ObjectId(artId) },
+    });
     art = result?.[0];
   } catch (error) {
     throw { status: 400, message: error.toString() };

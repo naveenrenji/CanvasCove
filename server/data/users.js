@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Art, User } from "../models/index.js";
 
 // TODO: Get user and his images.
@@ -19,7 +20,7 @@ export const getArtList = async (currentUser, userId) => {
 
   try {
     artList = await Art.withMetrics(currentUser, {
-      $match: { artist: userId },
+      $match: { artist: new mongoose.Types.ObjectId(userId) },
     });
   } catch (error) {
     throw { status: 400, message: error.toString() };
@@ -41,7 +42,7 @@ export const getMyLikedArt = async (currentUser) => {
       $match: {
         interactions: {
           $elemMatch: {
-            user: currentUser._id,
+            user: new mongoose.Types.ObjectId(currentUser._id),
             type: "like",
           },
         },
