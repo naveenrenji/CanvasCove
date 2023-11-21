@@ -3,7 +3,8 @@ import { ArtCard, ArtCardPlaceholder, IconButton } from "./common";
 
 import { artAPI } from "../api";
 import { INTERACTION_TYPES } from "../constants";
-import { Alert, Col, Container, Row } from "react-bootstrap";
+import { Alert, Button, Col, Container, Row, Stack } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [loading, setLoading] = React.useState(true);
@@ -86,7 +87,11 @@ const Home = () => {
   return (
     <>
       {error ? (
-        <p>{error}</p>
+        <Alert variant="danger">
+          <Alert.Heading>Could not load your feed!</Alert.Heading>
+          <hr />
+          <p>{error}</p>
+        </Alert>
       ) : (
         <Container fluid="md">
           {alertError ? (
@@ -127,7 +132,28 @@ const Home = () => {
                   />
                 ))
               ) : (
-                <p>No art to show</p>
+                <Alert variant="light">
+                  <Alert.Heading>That's all folks!</Alert.Heading>
+                  <hr />
+                  <p>
+                    Looks like your feed dried up. Try following more artists or
+                    wait for your favorites to upload more art.
+                  </p>
+                  <hr />
+                  <Stack gap={2} direction="horizontal">
+                    <Button variant="outline-dark" onClick={getFeed}>
+                      Refresh Feed
+                    </Button>
+
+                    <Button variant="outline-dark" as={Link} to="/explore">
+                      Explore
+                    </Button>
+
+                    <Button variant="outline-dark" onClick={() => setPage(1)}>
+                      Go back to top
+                    </Button>
+                  </Stack>
+                </Alert>
               )}
             </Col>
             <Col
