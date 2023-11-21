@@ -18,3 +18,17 @@
     margin: 5px;
     color: red;
 }
+
+.form-group {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.form-group label {
+    width: 30%;
+    margin-right: 10px;
+}

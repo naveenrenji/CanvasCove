@@ -1,6 +1,9 @@
 import React, { useMemo, useState, useCallback, useEffect } from "react";
 import { Loader } from "./index";
 import AuthContext from "../AuthContext";
+import { setToStorage } from "../helpers";
+
+const userAccessTokenKey = process.env.REACT_APP_USER_ACCESS_TOKEN_KEY;
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState();
@@ -20,15 +23,26 @@ const AuthProvider = ({ children }) => {
     getCurrentUser();
   }, [getCurrentUser]);
 
+  const signIn = useCallback(
+    async (accesstoken, callback) => {
+      setToStorage(userAccessTokenKey, accesstoken);
+      setIsLoggedIn(!!accesstoken);
+      await getCurrentUser();
+      callback();
+    },
+    [getCurrentUser]
+  );
 
   const authValues = useMemo(
     () => ({
       user,
+      signIn,
       isLoggedIn,
       getCurrentUser,
     }),
     [
       user,
+      signIn,
       isLoggedIn,
       getCurrentUser
     ]

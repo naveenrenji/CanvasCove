@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import "./styles.css";
-import { GENDERS, AGE_DATE_RANGE } from "../constants";
+import { GENDERS, USER_ROLES, AGE_DATE_RANGE } from "../constants";
 import { 
     formatDate,
     validateName,
@@ -9,9 +11,13 @@ import {
     validateConfirmPassword
 } from "../helpers";
 import { Form, Button, Card, Alert } from 'react-bootstrap';
+import { authAPI } from "../api";
+import useAuth from "../useAuth";
 
 
 const Signup = () => {
+    const auth = useAuth();
+    const navigate = useNavigate();
     // Fields - username, firstname, lastname, email, password, confirmPassword, dob, gender
     const [displayName, setDisplayName] = useState({
         value: "",
@@ -45,29 +51,57 @@ const Signup = () => {
         value: "",
         error: ""
     });
+    const [role, setRole] = useState({
+        value: USER_ROLES.CONNOISSEUR,
+        error: ""
+    });
+    const [error, setError] = useState();
+
     const isFormInvalid = () => {
         return !!displayName.error || !!firstName.error || !!lastName.error
-            || !!email.error || !!password.error || !!confirmPassword.error || !!dob.error || !!gender.error;
+            || !!email.error || !!password.error || !!confirmPassword.error
+            || !!dob.error || !!gender.error || !!role.error;
     };
-    const [error, setError] = useState()
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         e.stopPropagation();
-        if (isFormInvalid) {
+        if (isFormInvalid()) {
             setError("Make sure you have filled all fields without any errors")
-        } else {
-            setError();
-            alert("Good to go!")
+            return;
         }
-    }
+        setError();
+        try {
+            const res = await authAPI.signUp(
+                dob.value,
+                role.value,
+                gender.value,
+                password.value,
+                lastName.value.trim(),
+                firstName.value.trim(),
+                email.value.trim().toLowerCase()
+            );
+            await auth.signIn(res?.accesstoken, () => {
+                navigate("/home", {
+                  replace: true,
+                });
+            });
+        } catch (error) {
+            setError(
+                error?.response?.data?.error ||
+                error?.message ||
+                "Error occurred while creating user. Please try again."
+            );
+        };
+    };
+
     return (
     <Card className="signup-form">
         <h2 className="signup-header">Sign Up</h2>
         <Form
             onChange={() => setError()}
         >
-        <Form.Group className="mb-3" controlId="formBasicUsername">
+        <Form.Group className="mb-3 form-group" controlId="formBasicUsername">
             <Form.Label>Display Name</Form.Label>
             <Form.Control
                 required
@@ -88,7 +122,7 @@ const Signup = () => {
             </Form.Control.Feedback>
         </Form.Group>
 
-        <Form.Group className="mb-3" controlId="formBasicUsername">
+        <Form.Group className="mb-3 form-group" controlId="formBasicUsername">
             <Form.Label>First Name</Form.Label>
             <Form.Control
                 required
@@ -109,7 +143,7 @@ const Signup = () => {
             </Form.Control.Feedback>
         </Form.Group>
 
-        <Form.Group className="mb-3" controlId="formBasicUsername">
+        <Form.Group className="mb-3 form-group" controlId="formBasicUsername">
             <Form.Label>Last Name</Form.Label>
             <Form.Control
                 required
@@ -130,7 +164,7 @@ const Signup = () => {
             </Form.Control.Feedback>
         </Form.Group>
 
-        <Form.Group className="mb-3" controlId="formBasicEmail">
+        <Form.Group className="mb-3 form-group" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
             <Form.Control
                 required
@@ -151,7 +185,7 @@ const Signup = () => {
             </Form.Control.Feedback>
         </Form.Group>
 
-        <Form.Group className="mb-3" controlId="formGenderSelect">
+        <Form.Group className="mb-3 form-group" controlId="formGenderSelect">
             <Form.Label>Gender</Form.Label>
             <Form.Control
                 required
@@ -166,7 +200,7 @@ const Signup = () => {
                 }}
                 isInvalid={!!gender.error}
             >
-                <option value="">Select...</option>
+                <option value="">Select gender...</option>
                 {Object.entries(GENDERS).map(([key, value]) => (
                   <option key={key} value={key}>{value}</option>
                 ))}
@@ -176,7 +210,7 @@ const Signup = () => {
             </Form.Control.Feedback>
         </Form.Group>
 
-        <Form.Group className="mb-3" controlId="formGenderSelect">
+        <Form.Group className="mb-3 form-group" controlId="formGenderSelect">
             <Form.Label>Date of Birth</Form.Label>
             <Form.Control
                 required
@@ -199,7 +233,32 @@ const Signup = () => {
             </Form.Control.Feedback>
         </Form.Group>
 
-        <Form.Group className="mb-3" controlId="formBasicPassword">
+        <Form.Group className="mb-3 form-group" controlId="formRoleSelect">
+            <Form.Label>Role</Form.Label>
+            <Form.Control
+                required
+                as="select"
+                value={role.value}
+                onChange={(e) => {
+                    const value = e?.target?.value
+                    setRole({
+                        error: value ? "" : "Role is required",
+                        value
+                    });
+                }}
+                isInvalid={!!role.error}
+            >
+                <option value="">Select role...</option>
+                {Object.entries(USER_ROLES).map(([key, value]) => (
+                  <option key={key} value={key}>{value}</option>
+                ))}
+            </Form.Control>
+            <Form.Control.Feedback type="invalid">
+                {gender.error}
+            </Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group className="mb-3 form-group" controlId="formBasicPassword">
             <Form.Label>Password</Form.Label>
             <Form.Control
                 required
@@ -220,17 +279,17 @@ const Signup = () => {
             </Form.Control.Feedback>
         </Form.Group>
 
-        <Form.Group className="mb-3" controlId="formBasicConfirmPassword">
+        <Form.Group className="mb-3 form-group" controlId="formBasicConfirmPassword">
             <Form.Label>Confirm Password</Form.Label>
             <Form.Control
                 required
                 type="password"
-                placeholder="Confirm Password"
+                placeholder="Confirm password"
                 value={confirmPassword.value}
                 onChange={(e) => {
                     const value = e?.target?.value
                     setConfirmPassword({
-                        error: validateConfirmPassword(value, password),
+                        error: validateConfirmPassword(value, password.value),
                         value,
                     });
                 }}
