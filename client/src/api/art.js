@@ -11,3 +11,13 @@ export const interactWithArtApi = async (artId, interactionType) => {
   });
   return response?.data?.art || {};
 };
+
+export const getArtCommentsApi = async (artId) => {
+  const response = await httpInstance.get(`/art/${artId}/comments`);
+  return response?.data?.comments || [];
+};
+
+export const createCommentApi = async (artId, body) => {
+  const response = await httpInstance.post(`/art/${artId}/comments`, body);
+  return response?.data?.comments || [];
+};

@@ -1,14 +1,17 @@
 import React from "react";
 import Card from "react-bootstrap/Card";
-
-import { formatPrice } from "../../utils";
-import { INTERACTION_TYPES } from "../../constants";
-
-import IconButton from "./IconButton";
 import { Link } from "react-router-dom";
 import { Button } from "react-bootstrap";
 
-const ArtCard = ({ art, onLikeClick }) => {
+import { formatPrice } from "../../helpers";
+import { INTERACTION_TYPES } from "../../constants";
+
+import IconButton from "./IconButton";
+import CommentsModal from "./CommentsModal";
+
+const ArtCard = ({ art, onCommentsCountChange, onLikeClick }) => {
+  const [showComments, setShowComments] = React.useState(false);
+
   const userLiked = React.useMemo(() => {
     return art.currentUserInteractions?.[0]?.type === INTERACTION_TYPES.LIKE;
   }, [art.currentUserInteractions]);
@@ -17,9 +20,21 @@ const ArtCard = ({ art, onLikeClick }) => {
     return art.likesCount || 0 + art.viewsCount || 0;
   }, [art.likesCount, art.viewsCount]);
 
+  const onToggleShowComments = React.useCallback(() => {
+    setShowComments((prev) => !prev);
+  }, []);
+
   return (
     <Card>
-      <Card.Header className="d-flex justify-content-space-between w-100">
+      <CommentsModal
+        show={showComments}
+        handleClose={onToggleShowComments}
+        art={art}
+        onCommentsCountChange={(newCount) =>
+          onCommentsCountChange(art, newCount)
+        }
+      />
+      <Card.Header className="d-flex justify-content-between align-items-center w-100">
         <div>
           <Card.Title style={{ margin: "4px 0" }}>{art.title}</Card.Title>
           <Card.Text as="span" className="d-flex align-items-center">
@@ -36,7 +51,7 @@ const ArtCard = ({ art, onLikeClick }) => {
           </Card.Text>
         </div>
         <div>
-          <i class="bi bi-eye-fill"></i> {totalViews} View(s)
+          <i className="bi bi-eye-fill"></i> {totalViews} View(s)
         </div>
       </Card.Header>
       <Card.Img
@@ -51,15 +66,23 @@ const ArtCard = ({ art, onLikeClick }) => {
         </Card.Text>
       </Card.Body>
       <Card.Footer>
-        <div className="d-flex justify-content-between align-items-center">
-          <div>
-            <IconButton
-              icon={"heart" + (userLiked ? "-fill" : "")}
-              onClick={() => onLikeClick(art)}
-              title={userLiked ? "Unlike" : "Like"}
-            />
-            <span>{art.likesCount || 0} Likes</span>
-          </div>
+        <div>
+          <IconButton
+            icon={"heart" + (userLiked ? "-fill" : "")}
+            onClick={() => onLikeClick(art)}
+            title={userLiked ? "Unlike" : "Like"}
+          />
+          <span>{art.likesCount || 0} Likes</span>
+        </div>
+        <div>
+          <IconButton
+            icon="chat-left-text"
+            onClick={onToggleShowComments}
+            title="Show Comments"
+          />
+          <Button variant="link" onClick={onToggleShowComments} className="p-0">
+            {art.commentsCount || 0} Comments
+          </Button>
         </div>
       </Card.Footer>
     </Card>

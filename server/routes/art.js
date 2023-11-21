@@ -1,9 +1,13 @@
 import { Router } from "express";
 import xss from "xss";
 
-import { artData, userData } from "../data/index.js";
+import { artData } from "../data/index.js";
 import { isArtCreator, isArtist } from "../middlewares/index.js";
-import { validateId, validateInteractionType } from "../validators/helpers.js";
+import {
+  validateId,
+  validateInteractionType,
+  validateString,
+} from "../validators/helpers.js";
 import { formatItemListResponse, formatItemResponse } from "../utils.js";
 
 const artRouter = Router();
@@ -27,7 +31,9 @@ artRouter.route("/search").post(async (req, res) => {
     const artList = await artData.searchArt(req.currentUser, {
       keyword: cleanKeyword,
     });
-    return res.json({ artList: await formatItemListResponse(req, artList, "Art") });
+    return res.json({
+      artList: await formatItemListResponse(req, artList, "Art"),
+    });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -66,8 +72,46 @@ artRouter.route("/:id/interact").post(async (req, res) => {
     let cleanInteractionType = xss(interactionType);
     cleanInteractionType = validateInteractionType(cleanInteractionType);
 
-    const art = await artData.saveArtInteraction(req.currentUser, id, cleanInteractionType);
+    const art = await artData.saveArtInteraction(
+      req.currentUser,
+      id,
+      cleanInteractionType
+    );
     return res.json({ art: await formatItemResponse(req, art, "Art") });
+  } catch (error) {
+    return res.status(error?.status || 500).json({ error: error?.message });
+  }
+});
+
+artRouter.route("/:id/comments").get(async (req, res) => {
+  try {
+    const { id } = req.params;
+    let cleanId = xss(id);
+    cleanId = validateId(cleanId);
+
+    const comments = await artData.getArtComments(req.currentUser, id);
+    return res.json({ comments });
+  } catch (error) {
+    return res.status(error?.status || 500).json({ error: error?.message });
+  }
+});
+
+artRouter.route("/:id/comments").post(async (req, res) => {
+  try {
+    const { id } = req.params;
+    let cleanId = xss(id);
+    cleanId = validateId(cleanId);
+
+    const { comment } = req.body;
+    let cleanComment = xss(comment);
+    cleanComment = validateString(cleanComment, "comment", { maxLength: 200 });
+
+    const comments = await artData.createArtComment(
+      req.currentUser,
+      id,
+      comment
+    );
+    return res.json({ comments });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }

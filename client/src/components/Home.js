@@ -66,6 +66,17 @@ const Home = () => {
 
   const onNextClick = () => onPageChange(page + 1);
   const onPrevClick = () => onPageChange(page - 1);
+  const handleCommentsCountChange = (item, newCount) => {
+    setFeed((prevFeed) => {
+      const updatedFeed = prevFeed.map((art) => {
+        if (art._id === item._id) {
+          art.commentsCount = newCount;
+        }
+        return art;
+      });
+      return updatedFeed;
+    });
+  };
 
   return (
     <>
@@ -90,7 +101,12 @@ const Home = () => {
                 <ArtCardPlaceholder />
               ) : feed.length ? (
                 feed.map((art, idx) => (
-                  <ArtCard art={art} onLikeClick={likeClickHandler} />
+                  <ArtCard
+                    key={idx}
+                    art={art}
+                    onLikeClick={likeClickHandler}
+                    onCommentsCountChange={handleCommentsCountChange}
+                  />
                 ))
               ) : (
                 <p>No art to show</p>

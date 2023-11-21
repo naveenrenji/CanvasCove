@@ -74,7 +74,6 @@ export const getFeed = async (currentUser, page = 1) => {
       { $limit: FEED_LIMIT }, // Limit the number of results
       {
         $addFields: {
-          topComments: { $slice: ["$comments", TOP_COMMENTS_COUNT] }, // Get the top 1 comment(s)
           currentUserInteractions: {
             $filter: {
               input: "$interactions",
@@ -109,7 +108,6 @@ export const getFeed = async (currentUser, page = 1) => {
           likesCount: 1,
           viewsCount: 1,
           commentsCount: 1,
-          topComments: 1,
           createdAt: 1,
         },
       },
@@ -194,6 +192,119 @@ export const saveArtInteraction = async (
   }
 
   return getArt(currentUser, artId);
+};
+
+export const getArtComments = async (currentUser, artId) => {
+  if (!currentUser) {
+    throw { status: 401, message: "Unauthorised request" };
+  }
+
+  if (!artId) {
+    throw { status: 400, message: "Please provide a valid art id!" };
+  }
+
+  let art;
+
+  try {
+    // Join with user to get user data.
+    const result = await Art.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(artId),
+        },
+      },
+      {
+        $unwind: {
+          path: "$comments",
+          preserveNullAndEmptyArrays: true, // Preserves documents with no comments
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "comments.user",
+          foreignField: "_id",
+          as: "comments.user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$comments.user",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          "comments._id": 1,
+          "comments.user._id": 1,
+          "comments.user.displayName": 1,
+          "comments.comment": 1,
+          "comments.createdAt": 1,
+        },
+      },
+      {
+        $sort: {
+          "comments.createdAt": 1,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          comments: {
+            $push: "$comments",
+          },
+        },
+      },
+    ]);
+    art = result?.[0];
+  } catch (error) {
+    throw { status: 400, message: error.toString() };
+  }
+
+  if (!art) {
+    throw { status: 400, message: "Please provide a valid art id!" };
+  }
+
+  return art.comments || [];
+};
+
+export const createArtComment = async (currentUser, artId, comment) => {
+  if (!currentUser) {
+    throw { status: 401, message: "Unauthorised request" };
+  }
+
+  if (!artId) {
+    throw { status: 400, message: "Please provide a valid art id!" };
+  }
+
+  if (!comment) {
+    throw { status: 400, message: "Please provide a valid comment!" };
+  }
+
+  let art;
+
+  try {
+    art = await Art.findById(artId);
+  } catch (error) {
+    throw { status: 400, message: error.toString() };
+  }
+
+  if (!art) {
+    throw { status: 400, message: "Please provide a valid art id!" };
+  }
+
+  art.comments.push({
+    user: currentUser._id,
+    comment,
+  });
+
+  try {
+    await art.save();
+  } catch (error) {
+    throw { status: 400, message: error.toString() };
+  }
+
+  return getArtComments(currentUser, artId);
 };
 
 // TODO: Implement this using withMetrics function as it will retrun art metrics, if any.

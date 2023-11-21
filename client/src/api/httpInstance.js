@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getFromStorage } from "../utils";
+import { getFromStorage } from "../helpers";
 
 const httpInstance = axios.create({
   baseURL: process.env.REACT_APP_BASE_URL,

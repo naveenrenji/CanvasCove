@@ -6,22 +6,40 @@ import {
   TOP_COMMENTS_COUNT,
 } from "../constants.js";
 
-const InteractionSchema = new Schema({
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+const InteractionSchema = new Schema(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: Object.values(INTERACTION_TYPES), // Enum to restrict the type to either 'like' or 'viewed'
+      required: true,
+    },
   },
-  type: {
-    type: String,
-    enum: Object.values(INTERACTION_TYPES), // Enum to restrict the type to either 'like' or 'viewed'
-    required: true,
+  {
+    timestamps: true,
+  }
+);
+
+const CommentsSchema = new Schema(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    comment: {
+      type: String,
+      required: true,
+    },
   },
-  interactionDate: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 const ArtSchema = new Schema(
   {
@@ -68,23 +86,7 @@ const ArtSchema = new Schema(
       },
     ],
     interactions: [InteractionSchema],
-    comments: [
-      {
-        user: {
-          type: Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
-        },
-        comment: {
-          type: String,
-          required: true,
-        },
-        commentDate: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
+    comments: [CommentsSchema],
   },
   {
     timestamps: true,
@@ -113,7 +115,6 @@ const ArtSchema = new Schema(
                 },
               },
               commentsCount: { $size: "$comments" },
-              topComments: { $slice: ["$comments", TOP_COMMENTS_COUNT] }, // Get the top 1 comment(s)
               currentUserInteractions: {
                 $filter: {
                   input: "$interactions",
@@ -147,7 +148,6 @@ const ArtSchema = new Schema(
               likesCount: 1,
               viewsCount: 1,
               commentsCount: 1,
-              topComments: 1,
               createdAt: 1,
             },
           },
