@@ -3,12 +3,13 @@ import { ArtCard, ArtCardPlaceholder, IconButton } from "./common";
 
 import { artAPI } from "../api";
 import { INTERACTION_TYPES } from "../constants";
-import { Col, Container, Row } from "react-bootstrap";
+import { Alert, Col, Container, Row } from "react-bootstrap";
 
 const Home = () => {
   const [loading, setLoading] = React.useState(true);
   const [feed, setFeed] = React.useState([]);
   const [error, setError] = React.useState(null);
+  const [alertError, setAlertError] = React.useState(null);
   const [page, setPage] = React.useState(1);
 
   const getFeed = React.useCallback(async () => {
@@ -43,7 +44,7 @@ const Home = () => {
         return updatedFeed;
       });
     } catch (error) {
-      setError(error?.message);
+      setAlertError(error?.message);
     }
   };
 
@@ -64,7 +65,7 @@ const Home = () => {
       setPage(newPage);
     } catch (error) {
       setLoading(false);
-      setError(error?.message);
+      setAlertError(error?.message);
     }
   };
 
@@ -88,6 +89,19 @@ const Home = () => {
         <p>{error}</p>
       ) : (
         <Container fluid="md">
+          {alertError ? (
+            <Row>
+              <Alert
+                variant="danger"
+                onClose={() => setAlertError()}
+                dismissible
+              >
+                <Alert.Heading>Oh Snap!</Alert.Heading>
+                <hr />
+                <p>{alertError}</p>
+              </Alert>
+            </Row>
+          ) : null}
           <Row xs={12} sm={12} className="g-0">
             <Col
               xs={1}

@@ -1,5 +1,12 @@
 import React from "react";
-import { Button, InputGroup, ListGroup, Modal, Form } from "react-bootstrap";
+import {
+  Button,
+  InputGroup,
+  ListGroup,
+  Modal,
+  Form,
+  Alert,
+} from "react-bootstrap";
 
 import { artAPI } from "../../api";
 import AvatarIcon from "./AvatarIcon";
@@ -56,6 +63,7 @@ export const CommentsListGroup = ({
                 type="text"
                 placeholder="Enter comment"
                 value={newComment}
+                maxLength={200}
                 onChange={(e) => setNewComment(e.target.value)}
                 onBlur={(e) => setNewComment(e.target.value.trim())}
                 style={{ border: 0, padding: "8px 16px" }}
@@ -76,6 +84,7 @@ export const CommentsListGroup = ({
 
 const CommentsModal = ({ show, handleClose, art, onCommentsCountChange }) => {
   const [comments, setComments] = React.useState([]);
+  const [alertError, setAlertError] = React.useState("");
 
   React.useEffect(() => {
     (async () => {
@@ -108,6 +117,13 @@ const CommentsModal = ({ show, handleClose, art, onCommentsCountChange }) => {
         <Modal.Title>Comments</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        {alertError ? (
+          <Alert variant="danger" onClose={() => setAlertError()} dismissible>
+            <p>Could not add comment!</p>
+            <hr />
+            <p>{alertError}</p>
+          </Alert>
+        ) : null}
         <CommentsListGroup
           showAddCommentForm
           comments={comments}
