@@ -49,17 +49,21 @@ const Home = () => {
 
   const onPageChange = async (newPage) => {
     try {
-      await Promise.all(
-        feed
-          .map((art) =>
-            !art.currentUserInteractions.length
-              ? artAPI.interactWithArtApi(art._id, INTERACTION_TYPES.VIEW)
-              : null
-          )
-          .filter((i) => !!i)
-      );
+      const pageChangePromises = feed
+        .map((art) =>
+          !art.currentUserInteractions.length
+            ? artAPI.interactWithArtApi(art._id, INTERACTION_TYPES.VIEW)
+            : null
+        )
+        .filter((i) => !!i);
+
+      if (pageChangePromises.length) {
+        setLoading(true);
+        await Promise.all(pageChangePromises);
+      }
       setPage(newPage);
     } catch (error) {
+      setLoading(false);
       setError(error?.message);
     }
   };
