@@ -7,7 +7,17 @@ import {
 import xss from "xss";
 import PasswordService from "../services/password-service.js";
 
-
+export const getLoggedInUser = async(email) => {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw { status: 401, message: "Could not find the user associated with the login credentials"};
+    };
+    return user;
+  } catch (error) {
+    throw { status: 401, message: error?.message };
+  };
+};
 export const login = async (email, password) => {
   email = xss(email);
   password = xss(password);

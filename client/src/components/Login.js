@@ -1,21 +1,44 @@
 import React, { useState } from "react";
-import { Form, Button, Card } from 'react-bootstrap';
+import { Form, Button, Card, Alert } from 'react-bootstrap';
+import { useNavigate } from "react-router-dom";
+
+import { authAPI } from "../api";
+import useAuth from "../useAuth";
 
 
 const Login = () => {
-    // Fields - username, firstname, lastname, email, password, confirmPassword, dob, gender
-    const [email, setEmail] = useState({
-        value: "",
-        error: ""
-    });
-    const [password, setPassword] = useState({
-        value: "",
-        error: ""
-    });
+    const auth = useAuth();
+    const navigate = useNavigate();
+    const [email, setEmail] = useState();
+    const [password, setPassword] = useState();
+    const [error, setError] = useState();
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
         // TODO - validate form and proceed
-    }
+        e.preventDefault()
+        e.stopPropagation();
+        if (!email || !password) {
+            setError("Email and password is required to sign in");
+        }
+        try {
+            const res = await authAPI.login(
+                email.trim(),
+                password.trim()
+            );
+            await auth.signIn(res?.accesstoken, () => {
+                navigate("/home", {
+                  replace: true,
+                });
+            });
+        } catch (error) {
+            setError(
+                error?.response?.data?.error ||
+                error?.message ||
+                "Error occurred while signing in. Please try again."
+            );
+        };
+
+    };
 
     return (
     <Card className="signup-form">
@@ -26,18 +49,15 @@ const Login = () => {
             <Form.Control
                 type="text"
                 placeholder="Enter email"
-                value={email.value}
+                value={email}
                 onChange={(e) => {
-                    setEmail({
-                        error: e?.target?.value ? "" : "Email is required",
-                        value: e?.target?.value || ""
-                    })
+                    setEmail(e?.target?.value)
                 }}
-                isInvalid={!!email.error}
+                // isInvalid={!!email}
             />
-            <Form.Control.Feedback type="invalid">
-                {email.error}
-            </Form.Control.Feedback>
+            {/* <Form.Control.Feedback type="invalid">
+                Email is required
+            </Form.Control.Feedback> */}
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formBasicPassword">
@@ -45,23 +65,29 @@ const Login = () => {
             <Form.Control
                 type="password"
                 placeholder="Password"
-                value={password.value}
+                value={password}
                 onChange={(e) => {
-                    setPassword({
-                        error: e?.target?.value ? "" : "Password is required",
-                        value: e?.target?.value || ""
-                    })
+                    setPassword(e?.target?.value)
                 }}
-                isInvalid={!!password.error}
+                // isInvalid={!!password}
             />
-            <Form.Control.Feedback type="invalid">
-                {password.error}
-            </Form.Control.Feedback>
+            {/* <Form.Control.Feedback type="invalid">
+                {password ? "" : "Password is required"}
+            </Form.Control.Feedback> */}
         </Form.Group>
 
+        {
+            error ? (
+              <Alert variant="danger">
+                {error}
+              </Alert>
+            ) : null
+        }
+
         <Button
-            variant="primary"
             type="submit"
+            variant="primary"
+            disabled={!email || !password}
             style={{ width: '100%' }}
             onClick={handleSubmit}
         >

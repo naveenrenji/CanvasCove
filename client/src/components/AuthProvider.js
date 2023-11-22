@@ -1,25 +1,40 @@
 import React, { useMemo, useState, useCallback, useEffect } from "react";
 import { Loader } from "./index";
 import AuthContext from "../AuthContext";
-import { setToStorage } from "../helpers";
+import { getFromStorage, setToStorage } from "../helpers";
+import { getLoggedInUser } from "../api/auth";
 
 const userAccessTokenKey = process.env.REACT_APP_USER_ACCESS_TOKEN_KEY;
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState();
+  const [error, setError] = useState();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [appLoaded, setAppLoaded] = useState(false);
 
   const getCurrentUser = useCallback(async () => {
-    // TODO: Get user either from local stroage or server and store in user
-    // appLoaded should be set to true on success
-    setTimeout(() => {
-        setAppLoaded(true)
-    }, 2000);
+    try {
+      setError();
+      const accessToken = getFromStorage(userAccessTokenKey);
+      if (!accessToken) {
+        setAppLoaded(true);
+        return;
+      };
+      setAppLoaded(false);
+      const data = await getLoggedInUser();
+      setUser(data);
+    } catch (error) {
+      setError("Could not get your details. Please try again.");
+    } finally {
+      setAppLoaded(true);
+    };
   }, []);
 
   useEffect(() => {
     // Get loggedIn status from local storage and set accordingly
+    if (getFromStorage(userAccessTokenKey)) {
+      setIsLoggedIn(true);
+    };
     getCurrentUser();
   }, [getCurrentUser]);
 
@@ -36,12 +51,14 @@ const AuthProvider = ({ children }) => {
   const authValues = useMemo(
     () => ({
       user,
+      error,
       signIn,
       isLoggedIn,
       getCurrentUser,
     }),
     [
       user,
+      error,
       signIn,
       isLoggedIn,
       getCurrentUser
