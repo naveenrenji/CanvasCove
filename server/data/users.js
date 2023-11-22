@@ -87,7 +87,7 @@ export const updateFollowingStatus = async (currentUser, userId) => {
     currentUser.following?.find(
       (follower) => follower.toString() === userId.toString()
     ) &&
-    user.follwers?.find(
+    user.followers?.find(
       (following) => following.toString() === currentUser._id.toString()
     );
 
@@ -113,7 +113,53 @@ export const updateFollowingStatus = async (currentUser, userId) => {
     throw { status: 400, message: error.toString() };
   }
 
-  // TODO: Update this when getUser is implemented.
-  // return getUser(currentUser, userId);
-  return user;
+  // Fetch user data and also add if current user is following as one of the keys
+  const result = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(userId),
+      },
+    },
+    {
+      $addFields: {
+        isFollowedByCurrentUser: {
+          $and: [
+            {
+              $in: [currentUser._id, "$followers"],
+            },
+            {
+              $in: ["$_id", currentUser.following],
+            },
+          ],
+        },
+        isFollowingCurrentUser: {
+          $and: [
+            {
+              $in: [currentUser._id, "$following"],
+            },
+            {
+              $in: ["$_id", currentUser.followers],
+            },
+          ],
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        firstName: 1,
+        lastName: 1,
+        displayName: 1,
+        images: 1,
+        isFollowedByCurrentUser: 1,
+        isFollowingCurrentUser: 1,
+      },
+    },
+  ]);
+
+  if (!result || !result?.[0]) {
+    throw { status: 400, message: "Could not get user" };
+  }
+
+  return result[0];
 };

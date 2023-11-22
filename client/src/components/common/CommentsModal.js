@@ -6,11 +6,13 @@ import {
   Modal,
   Form,
   Alert,
+  Stack,
 } from "react-bootstrap";
 
 import { artAPI } from "../../api";
 import AvatarIcon from "./AvatarIcon";
 import IconButton from "./IconButton";
+import { Link } from "react-router-dom";
 
 export const CommentsListGroup = ({
   comments,
@@ -42,9 +44,32 @@ export const CommentsListGroup = ({
           className="d-flex align-items-center"
           style={{ padding: 0 }}
         >
-          <span style={{ backgroundColor: "#f8f9fa", padding: "8px 16px" }}>
+          <Stack
+            direction="horizontal"
+            gap={2}
+            style={{
+              backgroundColor: "#f8f9fa",
+              padding: "8px 16px",
+              width: "150px",
+            }}
+          >
             <AvatarIcon displayName={comment.user.displayName} size="30px" />
-          </span>
+            <Button
+              variant="link"
+              as={Link}
+              to={`/users/${comment.user._id}`}
+              style={{
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
+                width: "80px",
+                padding: 0,
+                textAlign: "left",
+              }}
+            >
+              {comment.user.displayName}
+            </Button>
+          </Stack>
           <span style={{ padding: "8px 16px" }}>{comment.comment}</span>
         </ListGroup.Item>
       ))}
@@ -52,12 +77,23 @@ export const CommentsListGroup = ({
         <ListGroup.Item style={{ padding: 0 }}>
           <Form onSubmit={handleAddComment} className="w-100">
             <InputGroup>
-              <InputGroup.Text style={{ border: 0, padding: "8px 16px" }}>
+              <InputGroup.Text
+                style={{ border: 0, padding: "8px 16px", width: "150px" }}
+              >
                 <AvatarIcon
                   // TODO: Replace with current users display name
                   displayName={"A"}
                   size="30px"
                 ></AvatarIcon>
+                <span
+                  style={{
+                    width: "80px",
+                    textAlign: "left",
+                    paddingLeft: "0.75rem",
+                  }}
+                >
+                  You
+                </span>
               </InputGroup.Text>
               <Form.Control
                 type="text"
@@ -97,7 +133,7 @@ const CommentsModal = ({ show, handleClose, art, onCommentsCountChange }) => {
         }
       }
     })();
-  }, [art, show]);
+  }, [art._id, show]);
 
   const handleAddComment = async (newComment) => {
     try {

@@ -3,7 +3,7 @@ import { ArtCard, ArtCardPlaceholder, IconButton } from "./common";
 
 import { artAPI } from "../api";
 import { INTERACTION_TYPES } from "../constants";
-import { Alert, Button, Col, Container, Row, Stack } from "react-bootstrap";
+import { Alert, Button, Container, Row, Stack } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
 const Home = () => {
@@ -29,7 +29,7 @@ const Home = () => {
     getFeed();
   }, [getFeed]);
 
-  const likeClickHandler = async (art) => {
+  const handleLikeClick = async (art) => {
     try {
       const updatedArt = await artAPI.interactWithArtApi(
         art._id,
@@ -70,13 +70,13 @@ const Home = () => {
     }
   };
 
-  const onNextClick = () => onPageChange(page + 1);
-  const onPrevClick = () => onPageChange(page - 1);
-  const handleCommentsCountChange = (item, newCount) => {
+  const handleNextClick = () => onPageChange(page + 1);
+  const handlePrevClick = () => onPageChange(page - 1);
+  const handleArtChange = (updatedArt) => {
     setFeed((prevFeed) => {
       const updatedFeed = prevFeed.map((art) => {
-        if (art._id === item._id) {
-          art.commentsCount = newCount;
+        if (art._id === updatedArt._id) {
+          return updatedArt;
         }
         return art;
       });
@@ -93,7 +93,7 @@ const Home = () => {
           <p>{error}</p>
         </Alert>
       ) : (
-        <Container fluid="md">
+        <Container fluid="md" className="d-flex justify-content-center">
           {alertError ? (
             <Row>
               <Alert
@@ -107,68 +107,56 @@ const Home = () => {
               </Alert>
             </Row>
           ) : null}
-          <Row xs={12} sm={12} className="g-0">
-            <Col
-              xs={1}
-              className="d-flex align-items-center justify-content-end"
-            >
-              <IconButton
-                icon="arrow-left"
-                onClick={onPrevClick}
-                disabled={page === 1}
-                title="Previous Page"
-              />
-            </Col>
-            <Col xs={10} sm={{ span: 8, offset: 1 }}>
-              {loading ? (
-                <ArtCardPlaceholder />
-              ) : feed.length ? (
-                feed.map((art, idx) => (
-                  <ArtCard
-                    key={idx}
-                    art={art}
-                    onLikeClick={likeClickHandler}
-                    onCommentsCountChange={handleCommentsCountChange}
-                  />
-                ))
-              ) : (
-                <Alert variant="light">
-                  <Alert.Heading>That's all folks!</Alert.Heading>
-                  <hr />
-                  <p>
-                    Looks like your feed dried up. Try following more artists or
-                    wait for your favorites to upload more art.
-                  </p>
-                  <hr />
-                  <Stack gap={2} direction="horizontal">
-                    <Button variant="outline-dark" onClick={getFeed}>
-                      Refresh Feed
-                    </Button>
+          <Stack gap={2} direction="horizontal">
+            <IconButton
+              icon="arrow-left"
+              onClick={handlePrevClick}
+              disabled={loading || page === 1}
+              title="Previous Page"
+            />
+            {loading ? (
+              <ArtCardPlaceholder />
+            ) : feed.length ? (
+              feed.map((art, idx) => (
+                <ArtCard
+                  key={idx}
+                  art={art}
+                  onLikeClick={handleLikeClick}
+                  onArtChange={handleArtChange}
+                />
+              ))
+            ) : (
+              <Alert variant="light">
+                <Alert.Heading>That's all folks!</Alert.Heading>
+                <hr />
+                <p>
+                  Looks like your feed dried up. Try following more artists or
+                  wait for your favorites to upload more art.
+                </p>
+                <hr />
+                <Stack gap={2} className="flex-xs-col flex-sm-row">
+                  <Button variant="outline-dark" onClick={getFeed}>
+                    Refresh Feed
+                  </Button>
 
-                    <Button variant="outline-dark" as={Link} to="/explore">
-                      Explore
-                    </Button>
+                  <Button variant="outline-dark" as={Link} to="/explore">
+                    Explore
+                  </Button>
 
-                    <Button variant="outline-dark" onClick={() => setPage(1)}>
-                      Go back to top
-                    </Button>
-                  </Stack>
-                </Alert>
-              )}
-            </Col>
-            <Col
-              xs={1}
-              sm={{ span: 1, offset: 1 }}
-              className="d-flex align-items-center justify-content-start"
-            >
-              <IconButton
-                icon="arrow-right"
-                onClick={onNextClick}
-                disabled={!feed.length}
-                title="Next Page"
-              />
-            </Col>
-          </Row>
+                  <Button variant="outline-dark" onClick={() => setPage(1)}>
+                    Go back to top
+                  </Button>
+                </Stack>
+              </Alert>
+            )}
+
+            <IconButton
+              icon="arrow-right"
+              onClick={handleNextClick}
+              disabled={loading || !feed.length}
+              title="Next Page"
+            />
+          </Stack>
         </Container>
       )}
     </>

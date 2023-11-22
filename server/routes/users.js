@@ -3,7 +3,6 @@ import { userData } from "../data/index.js";
 import { formatItemListResponse, formatItemResponse } from "../utils.js";
 import { validateId, validateString } from "../validators/helpers.js";
 import xss from "xss";
-import { INTERACTION_TYPES } from "../constants.js";
 
 const userRouter = Router();
 

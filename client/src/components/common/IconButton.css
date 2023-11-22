@@ -1,0 +1,7 @@
+.btn.btn-icon,
+.btn.icon-button:hover,
+.btn.icon-button:active,
+.btn.icon-button:focus-visible {
+  background-color: unset !important;
+  border: 0;
+}

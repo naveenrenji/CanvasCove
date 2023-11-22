@@ -11,7 +11,8 @@ import {
     Login,
     Signup,
     Welcome,
-    NotFound
+    NotFound,
+    Art
 } from "../components";
 
 const Routes = () => {
@@ -41,6 +42,14 @@ const Routes = () => {
           element={
             <RequireAuth>
               <Home />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/art/:id"
+          element={
+            <RequireAuth>
+              <Art />
             </RequireAuth>
           }
         />

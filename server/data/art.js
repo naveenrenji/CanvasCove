@@ -93,12 +93,38 @@ export const getFeed = async (currentUser, page = 1) => {
       },
       { $unwind: "$artist" },
       {
+        $addFields: {
+          "artist.isFollowedByCurrentUser": {
+            $and: [
+              {
+                $in: [currentUser._id, "$artist.followers"],
+              },
+              {
+                $in: ["$artist._id", currentUser.following],
+              },
+            ],
+          },
+          "artist.isFollowingCurrentUser": {
+            $and: [
+              {
+                $in: [currentUser._id, "$artist.following"],
+              },
+              {
+                $in: ["$artist._id", currentUser.followers],
+              },
+            ],
+          },
+        },
+      },
+      {
         $project: {
           "artist._id": 1,
           "artist.firstName": 1,
           "artist.lastName": 1,
           "artist.displayName": 1,
           "artist.images": 1,
+          "artist.isFollowedByCurrentUser": 1,
+          "artist.isFollowingCurrentUser": 1,
           currentUserInteractions: 1,
           score: 1,
           priceInCents: 1,
@@ -214,48 +240,49 @@ export const getArtComments = async (currentUser, artId) => {
         },
       },
       {
-        $unwind: {
-          path: "$comments",
-          preserveNullAndEmptyArrays: true, // Preserves documents with no comments
-        },
-      },
-      {
         $lookup: {
           from: "users",
-          localField: "comments.user",
-          foreignField: "_id",
-          as: "comments.user",
-        },
-      },
-      {
-        $unwind: {
-          path: "$comments.user",
-          preserveNullAndEmptyArrays: true,
+          let: { userIds: "$comments.user" }, // Define the variable for user IDs in comments
+          pipeline: [
+            {
+              $match: {
+                $expr: { $in: ["$_id", "$$userIds"] },
+              },
+            },
+            {
+              $project: { _id: 1, displayName: 1 }, // Select only _id and displayName
+            },
+          ],
+          as: "userDetails",
         },
       },
       {
         $project: {
-          "comments._id": 1,
-          "comments.user._id": 1,
-          "comments.user.displayName": 1,
-          "comments.comment": 1,
-          "comments.createdAt": 1,
-        },
-      },
-      {
-        $sort: {
-          "comments.createdAt": 1,
-        },
-      },
-      {
-        $group: {
-          _id: "$_id",
+          _id: 1,
           comments: {
-            $push: "$comments",
+            $map: {
+              input: "$comments",
+              as: "comment",
+              in: {
+                _id: "$$comment._id",
+                comment: "$$comment.comment",
+                createdAt: "$$comment.createdAt",
+                user: {
+                  $first: {
+                    $filter: {
+                      input: "$userDetails",
+                      as: "userDetail",
+                      cond: { $eq: ["$$userDetail._id", "$$comment.user"] },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },
     ]);
+
     art = result?.[0];
   } catch (error) {
     throw { status: 400, message: error.toString() };

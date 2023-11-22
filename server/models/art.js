@@ -134,12 +134,38 @@ const ArtSchema = new Schema(
           },
           { $unwind: "$artist" },
           {
+            $addFields: {
+              "artist.isFollowedByCurrentUser": {
+                $and: [
+                  {
+                    $in: [currentUser._id, "$artist.followers"],
+                  },
+                  {
+                    $in: ["$artist._id", currentUser.following],
+                  },
+                ],
+              },
+              "artist.isFollowingCurrentUser": {
+                $and: [
+                  {
+                    $in: [currentUser._id, "$artist.following"],
+                  },
+                  {
+                    $in: ["$artist._id", currentUser.followers],
+                  },
+                ],
+              },
+            },
+          },
+          {
             $project: {
               "artist._id": 1,
               "artist.firstName": 1,
               "artist.lastName": 1,
               "artist.displayName": 1,
               "artist.images": 1,
+              "artist.isFollowedByCurrentUser": 1,
+              "artist.isFollowingCurrentUser": 1,
               currentUserInteractions: 1,
               priceInCents: 1,
               images: 1,

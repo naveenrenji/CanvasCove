@@ -12,6 +12,11 @@ export const interactWithArtApi = async (artId, interactionType) => {
   return response?.data?.art || {};
 };
 
+export const getArtApi = async (artId) => {
+  const response = await httpInstance.get(`/art/${artId}`);
+  return response?.data?.art || {};
+};
+
 export const getArtCommentsApi = async (artId) => {
   const response = await httpInstance.get(`/art/${artId}/comments`);
   return response?.data?.comments || [];

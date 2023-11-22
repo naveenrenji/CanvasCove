@@ -5,3 +5,4 @@ export { default as Signup } from "./Signup";
 export { default as Welcome } from "./Welcome";
 export { default as AuthProvider } from "./AuthProvider";
 export { default as Loader } from "./common/Loader";
+export { default as Art } from "./Art";

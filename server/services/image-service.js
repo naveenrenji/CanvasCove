@@ -89,6 +89,23 @@ class ImageService {
       throw { status: 400, message: "Could not save image" };
     }
 
+    switch (imageableType) {
+      case "Art":
+        const art = await Art.findById(imageableId);
+        art.images.push(image._id);
+        await art.save();
+        break;
+
+      case "User":
+        const user = await User.findById(imageableId);
+        user.images.push(image._id);
+        await user.save();
+        break;
+
+      default:
+        break;
+    }
+
     return image;
   }
 
