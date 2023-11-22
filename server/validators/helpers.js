@@ -1,7 +1,7 @@
 import { isValidObjectId } from "mongoose";
 import { DateTime } from "luxon";
 import { City, State } from "country-state-city";
-import { INTERACTION_TYPES } from "../constants.js";
+import { GENDERS, USER_ROLES, INTERACTION_TYPES } from "../constants.js";
 
 const COUNTRY_CODE = "US";
 
@@ -190,7 +190,7 @@ const validateDOB = (dob, name) => {
     };
   }
   // dob must be at least 18 years ago using luxon
-  const eighteenYearsAgo = DateTime.now().minus({ years: 18 });
+  const eighteenYearsAgo = DateTime.now().minus({ years: 15 });
   if (dob > eighteenYearsAgo) {
     throw {
       status: 400,
@@ -199,7 +199,7 @@ const validateDOB = (dob, name) => {
   }
 
   // dob must be at max 100 years ago
-  const oneHundredYearsAgo = DateTime.now().minus({ years: 100 });
+  const oneHundredYearsAgo = DateTime.now().minus({ years: 75 });
   if (dob < oneHundredYearsAgo) {
     throw {
       status: 400,
@@ -231,17 +231,17 @@ const validatePhone = (value, name) => {
 const validateName = (name, varName = "Name") => {
   name = validateString(name, varName);
 
-  if (!/^[a-zA-Z\s]{1,25}$/.test(name)) {
+  if (!/^[a-zA-Z\s]{3,20}$/.test(name)) {
     throw {
       status: 400,
-      message: `${varName} must be between 1 and 25 characters long and contain only letters.`,
+      message: `${varName} must be between 3 and 20 characters long and contain only letters.`,
     };
   }
 
   return name;
 };
 
-const validateGender = (value, name) => {
+const validateGender = (value, name = "Selection") => {
   if (!value) {
     throw {
       status: 400,
@@ -249,6 +249,22 @@ const validateGender = (value, name) => {
     };
   }
   if (!Object.values(GENDERS).includes(value)) {
+    throw {
+      status: 400,
+      message: `Invalid ${name}`,
+    };
+  }
+  return value;
+};
+
+const validateRole = (value, name = "Selection") => {
+  if (!value) {
+    throw {
+      status: 400,
+      message: `${name} is required!`,
+    };
+  }
+  if (!Object.values(USER_ROLES).includes(value)) {
     throw {
       status: 400,
       message: `Invalid ${name}`,
@@ -269,6 +285,23 @@ const validateInteractionType = (value) => {
   return value;
 };
 
+const validateSignUp = (payload) => {
+  let { displayName, firstName, lastName, email, password, dob, role, gender } =
+    payload;
+
+  displayName = validateName(displayName, "Display Name");
+  firstName = validateName(firstName, "First Name");
+  lastName = validateName(lastName, "Last Name");
+  email = validateEmail(email);
+  password = validatePassword(password);
+  dob = validateDOB(dob);
+  role = validateRole(role);
+  gender = validateGender(gender);
+
+  return { displayName, firstName, lastName, email, password, dob, role, gender };
+};
+
+
 export {
   isValidEmail,
   isValidPassword,
@@ -285,4 +318,6 @@ export {
   validateGender,
   validateStateAndCity,
   validateInteractionType,
+  validateSignUp,
+  validateRole,
 };

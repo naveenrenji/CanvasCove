@@ -6,8 +6,8 @@ export const GENDERS = {
 };
 
 export const USER_ROLES = {
-  ARTIST: "artist",
-  CONNOISSEUR: "connoisseur",
+  ARTIST: "Artist",
+  CONNOISSEUR: "Connoisseur",
 };
 
 export const ART_VISIBILITY = {

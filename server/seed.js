@@ -22,7 +22,7 @@ try {
     displayName: "Tester",
     encryptedPassword: await new PasswordService("Password@123").encrypt(),
     phone: "1234567890",
-    dateOfBirth: new Date("1990-01-01"),
+    dob: new Date("1990-01-01"),
     gender: GENDERS.OTHER,
   });
   console.log("Created test user!");
@@ -39,7 +39,7 @@ try {
     displayName: "Anonymouse",
     encryptedPassword: await new PasswordService("Password@123").encrypt(),
     phone: "0987654321",
-    dateOfBirth: new Date("1995-01-01"),
+    dob: new Date("1995-01-01"),
     gender: GENDERS.FEMALE,
     role: USER_ROLES.ARTIST,
   });

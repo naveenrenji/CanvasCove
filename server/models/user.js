@@ -36,17 +36,11 @@ const UserSchema = new Schema(
         message: (props) => `${props.value} is not a valid email!`,
       },
     },
-    phone: {
-      type: String,
-      required: [true, "Phone number is required!"],
-      unique: [true, "Phone number already exists!"],
-      trim: true,
-    },
     encryptedPassword: {
       type: String,
       required: true,
     },
-    dateOfBirth: {
+    dob: {
       type: Date,
       required: [true, "Date of birth is required!"],
       validate: {

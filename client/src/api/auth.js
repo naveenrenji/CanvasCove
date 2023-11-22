@@ -1,22 +1,24 @@
 import httpInstance from "./httpInstance";
 
 export const signUp = async (
-    firstName,
-    lastName,
-    email,
-    password,
-    dateOfBirth,
-    role,
-    gender
+  displayName,
+  firstName,
+  lastName,
+  email,
+  dob,
+  role,
+  gender,
+  password
   ) => {
-    const res = await httpInstance.post("/signup", {
+    const res = await httpInstance.post("/sign-up", {
+      displayName,
       firstName,
       lastName,
       email,
-      password,
-      dateOfBirth,
+      dob,
       role,
       gender,
+      password
     });
     return res.data;
   };

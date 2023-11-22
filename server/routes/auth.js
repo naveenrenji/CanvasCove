@@ -1,7 +1,7 @@
 import xss from "xss";
 import { Router } from "express";
 
-import { validateEmail, validatePassword } from "../validators/helpers.js";
+import { validateEmail, validatePassword, validateSignUp } from "../validators/helpers.js";
 import { auth } from "../data/index.js";
 
 const authRouter = Router();
@@ -26,19 +26,21 @@ authRouter.route("/login").post(async (req, res) => {
 
 authRouter.route("/sign-up").post(async (req, res) => {
   try {
-    const { email, password } = req.body;
-    let cleanEmail = xss(email);
-    let cleanPassword = xss(password);
+    let { displayName, firstName, lastName, email, dob, role, gender, password } = req.body;
+    displayName = xss(displayName)
+    firstName = xss(firstName);
+    lastName = xss(lastName);
+    email = xss(email);
+    password = xss(password);
+    dob = xss(dob);
+    role = xss(role);
+    gender = xss(gender);
 
-    cleanEmail = validateEmail(cleanEmail);
-    cleanPassword = validatePassword(cleanPassword);
-
-    // TODO: clean and validate other fields
-
-    const user = await auth.createUser({
-      email: cleanEmail,
-      password: cleanPassword,
+    let signupPayload = validateSignUp({
+      displayName, firstName, lastName, email, password, dob, role, gender
     });
+
+    const user = await auth.signup(signupPayload);
     const accesstoken = user.generateToken();
 
     res.json({ message: "User created successfully", accesstoken });

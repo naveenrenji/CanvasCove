@@ -58,6 +58,11 @@ const Signup = () => {
     const [error, setError] = useState();
 
     const isFormInvalid = () => {
+        if (!displayName.value || !firstName.value || !lastName.value ||
+            !email.value || !password.value || !confirmPassword.value ||
+            !dob.value || !gender.value || !role.value) {
+                return true
+        }
         return !!displayName.error || !!firstName.error || !!lastName.error
             || !!email.error || !!password.error || !!confirmPassword.error
             || !!dob.error || !!gender.error || !!role.error;
@@ -71,15 +76,17 @@ const Signup = () => {
             return;
         }
         setError();
+
         try {
             const res = await authAPI.signUp(
+                displayName.value.trim(),
+                firstName.value.trim(),
+                lastName.value.trim(),
+                email.value.trim().toLowerCase(),
                 dob.value,
                 role.value,
                 gender.value,
                 password.value,
-                lastName.value.trim(),
-                firstName.value.trim(),
-                email.value.trim().toLowerCase()
             );
             await auth.signIn(res?.accesstoken, () => {
                 navigate("/home", {
@@ -201,8 +208,10 @@ const Signup = () => {
                 isInvalid={!!gender.error}
             >
                 <option value="">Select gender...</option>
-                {Object.entries(GENDERS).map(([key, value]) => (
-                  <option key={key} value={key}>{value}</option>
+                {Object.values(GENDERS).map((gender) => (
+                  <option value={gender} key={gender}>
+                    {gender}
+                  </option>
                 ))}
             </Form.Control>
             <Form.Control.Feedback type="invalid">
@@ -249,8 +258,10 @@ const Signup = () => {
                 isInvalid={!!role.error}
             >
                 <option value="">Select role...</option>
-                {Object.entries(USER_ROLES).map(([key, value]) => (
-                  <option key={key} value={key}>{value}</option>
+                {Object.values(USER_ROLES).map((role) => (
+                  <option value={role} key={role}>
+                    {role}
+                  </option>
                 ))}
             </Form.Control>
             <Form.Control.Feedback type="invalid">
