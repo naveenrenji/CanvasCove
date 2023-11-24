@@ -7,6 +7,7 @@ import {
 } from "../constants.js";
 import { Art } from "../models/index.js";
 import { validateInteractionType } from "../validators/helpers.js";
+import ImageService from "../services/image-service.js";
 
 export const getFeed = async (currentUser, page = 1) => {
   if (!currentUser) {
@@ -361,6 +362,20 @@ export const getArt = async (currentUser, artId, forUpdate = false) => {
             },
           },
           {
+            $lookup: {
+              from: "images",
+              let: { imageIds: "$images" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $in: ["$_id", "$$imageIds"] },
+                  },
+                },
+              ],
+              as: "images",
+            },
+          },
+          {
             $project: {
               _id: 1,
               artist: 1,
@@ -396,4 +411,44 @@ export const updateArt = async (currentUser, artId, body) => {};
 
 // TODO: Implement this and return boolean if its deleted or not. Make sure images are deleted as well(Call ImageService.deleteImages with art images array)
 // DONT USE WITHMETRICS FUNCTION
-export const deleteArt = async (currentUser, artId) => {};
+export const deleteArt = async (currentUser, artId) => {
+  if (!currentUser) {
+    throw { status: 401, message: "Unauthorised request" };
+  }
+
+  if (!artId) {
+    throw { status: 400, message: "Please provide a valid art id!" };
+  }
+
+  let art;
+
+  try {
+    art = await Art.findById(artId);
+  } catch (error) {
+    throw { status: 400, message: error.toString() };
+  }
+
+  if (!art) {
+    throw { status: 400, message: "Please provide a valid art id!" };
+  }
+
+  if (!art?.artist?.toString() === currentUser?._id?.toString()) {
+    throw { status: 400, message: "You can't delete this art!" };
+  }
+
+  try {
+    await ImageService.deleteImages({
+      images: await Image.find({
+        _id: { $in: art.images },
+      }),
+      imageableType: "Art",
+      imageableId: art._id,
+    });
+
+    await art.delete();
+  } catch (error) {
+    throw { status: 400, message: error.toString() };
+  }
+
+  return true;
+};

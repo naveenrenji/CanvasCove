@@ -126,6 +126,20 @@ const ArtSchema = new Schema(
           },
           {
             $lookup: {
+              from: "images",
+              let: { imageIds: "$images" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $in: ["$_id", "$$imageIds"] },
+                  },
+                },
+              ],
+              as: "images",
+            },
+          },
+          {
+            $lookup: {
               from: "users",
               localField: "artist",
               foreignField: "_id",

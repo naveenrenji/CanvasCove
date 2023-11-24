@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Art, User } from "../models/index.js";
+import { USER_ROLES } from "../constants.js";
 
 export const getUser = async (currentUser, userId) => {
   try {
@@ -30,11 +31,12 @@ export const getUser = async (currentUser, userId) => {
     // TODO: This is good, but you have to update the route accordingly. Check and update get users/me and users/:id routes.
     return { user, artList };
   } catch (error) {
-    throw { status: error.status || 500, message: error.message || "Internal Server Error" };
+    throw {
+      status: error.status || 500,
+      message: error.message || "Internal Server Error",
+    };
   }
 };
-
-
 
 export const getArtList = async (currentUser, userId) => {
   if (!currentUser) {
@@ -94,13 +96,20 @@ export const updateCurrentUser = async (currentUser, body) => {
     delete fieldsToUpdate.role;
     delete fieldsToUpdate.encryptedPassword;
 
-    const updatedUser = await User.findByIdAndUpdate(currentUser._id, fieldsToUpdate, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(
+      currentUser._id,
+      fieldsToUpdate,
+      { new: true }
+    );
     if (!updatedUser) {
       throw { status: 404, message: "User not found" };
     }
     return getUser(updatedUser, updatedUser._id);
   } catch (error) {
-    throw { status: error.status || 500, message: error.message || "Internal Server Error" };
+    throw {
+      status: error.status || 500,
+      message: error.message || "Internal Server Error",
+    };
   }
 };
 
@@ -108,15 +117,20 @@ export const updateCurrentUser = async (currentUser, body) => {
 // If a pattern emerges for this, you can move it to a separate user `withMetrics` model function(like witMetrics in Art model))
 export const searchUsers = async (currentUser, { keyword }) => {
   try {
-    const searchQuery = { $or: [
-      { firstName: { $regex: keyword, $options: 'i' } },
-      { lastName: { $regex: keyword, $options: 'i' } },
-      { displayName: { $regex: keyword, $options: 'i' } }
-    ]};
+    const searchQuery = {
+      $or: [
+        { firstName: { $regex: keyword, $options: "i" } },
+        { lastName: { $regex: keyword, $options: "i" } },
+        { displayName: { $regex: keyword, $options: "i" } },
+      ],
+    };
     const users = await User.find(searchQuery);
     return users;
   } catch (error) {
-    throw { status: error.status || 500, message: error.message || "Internal Server Error" };
+    throw {
+      status: error.status || 500,
+      message: error.message || "Internal Server Error",
+    };
   }
 };
 
@@ -177,6 +191,20 @@ export const updateFollowingStatus = async (currentUser, userId) => {
     {
       $match: {
         _id: new mongoose.Types.ObjectId(userId),
+      },
+    },
+    {
+      $lookup: {
+        from: "images",
+        let: { imageIds: "$images" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $in: ["$_id", "$$imageIds"] },
+            },
+          },
+        ],
+        as: "images",
       },
     },
     {

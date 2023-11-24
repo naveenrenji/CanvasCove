@@ -68,9 +68,14 @@ const ArtForm = ({ art = {}, onSuccess }) => {
     setLoading(true);
 
     try {
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
-
+      const data = {
+        title: title.value,
+        description: description.value,
+        artType: artType.value,
+        priceInCents: Number((price.value * 100).toFixed(0)),
+        visibility: visibility.value,
+        isDraft: isDraft.value,
+      };
       setProgressData({
         progress: 0,
         progressText: `${isEditing ? "Updating" : "Creating"} art...`,
@@ -80,21 +85,16 @@ const ArtForm = ({ art = {}, onSuccess }) => {
         ? await artAPI.updateArtApi(art._id, data)
         : await artAPI.createArtApi(data);
 
-      const images = formData.getAll("images");
-      if (images.length) {
+      if (images.value?.length) {
         setProgressData({
           progress: 50,
           progressText: "Uploading images...",
         });
 
-        const imagesCount = images.length;
+        const imagesCount = images.value?.length;
 
         for (let i = 0; i < imagesCount; i++) {
-          const image = images[i];
-          const imageFormData = new FormData();
-          imageFormData.append("image", image);
-
-          await artAPI.uploadImageApi(artRes._id, imageFormData, (event) => {
+          await artAPI.uploadImageApi(artRes._id, images.value[i], (event) => {
             const progress =
               50 +
               Math.round((50 / imagesCount) * (event.loaded / event.total));
@@ -138,6 +138,7 @@ const ArtForm = ({ art = {}, onSuccess }) => {
           <Card.Body>
             <FloatingLabel label="Title" className="mb-3">
               <Form.Control
+                name="title"
                 placeholder="Title"
                 required
                 value={title.value}
@@ -156,6 +157,7 @@ const ArtForm = ({ art = {}, onSuccess }) => {
 
             <FloatingLabel label="Description" className="mb-3">
               <Form.Control
+                name="description"
                 as="textarea"
                 placeholder="Enter description of your art here."
                 required
@@ -176,6 +178,7 @@ const ArtForm = ({ art = {}, onSuccess }) => {
               <Col>
                 <FloatingLabel label="Art Type">
                   <Form.Select
+                    name="artType"
                     aria-label="Select Art type"
                     required
                     value={artType.value}
@@ -194,7 +197,15 @@ const ArtForm = ({ art = {}, onSuccess }) => {
               </Col>
               <Col>
                 <FloatingLabel label="Images">
-                  <Form.Control type="file" multiple />
+                  <Form.Control
+                    name="images"
+                    type="file"
+                    multiple
+                    onChange={(event) => {
+                      event.target.files.length &&
+                        setImages({ value: event.target.files, error: "" });
+                    }}
+                  />
                 </FloatingLabel>
               </Col>
             </Row>
@@ -205,6 +216,7 @@ const ArtForm = ({ art = {}, onSuccess }) => {
                   <InputGroup.Text>$</InputGroup.Text>
                   <FloatingLabel label="Price">
                     <Form.Control
+                      name="price"
                       type="number"
                       placeholder="Price"
                       value={price.value}
@@ -219,6 +231,7 @@ const ArtForm = ({ art = {}, onSuccess }) => {
 
             <div className="mb-3">
               <Form.Check
+                name="visibility"
                 type="switch"
                 id="visibility-switch"
                 label={`Visibility - ${visibility.value}`}
@@ -239,6 +252,7 @@ const ArtForm = ({ art = {}, onSuccess }) => {
             </div>
 
             <Form.Check
+              name="isDraft"
               type="switch"
               id="draft-switch"
               label={`Draft - ${isDraft.value ? "Yes" : "No"}`}

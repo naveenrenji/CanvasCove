@@ -53,7 +53,7 @@ artRouter.route("/:id").get(async (req, res) => {
   try {
     const { id } = req.params;
     let cleanId = xss(id);
-    cleanId = validateId(cleanId);
+    cleanId = validateId(cleanId, "Art ID");
 
     const { forUpdate } = req.query;
 

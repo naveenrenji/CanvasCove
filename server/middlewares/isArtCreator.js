@@ -1,4 +1,6 @@
+import xss from "xss";
 import { Art } from "../models/index.js";
+import { validateId } from "../validators/helpers.js";
 
 export default async function isArtCreator(req, res, next) {
   try {

@@ -126,14 +126,17 @@ const ArtCard = ({ art, onArtChange, onLikeClick }) => {
       </Card.Header>
       <Carousel interval={3000}>
         {/* TODO: Update this to art images */}
-        {[
-          {
-            url: "https://cdn.britannica.com/78/43678-050-F4DC8D93/Starry-Night-canvas-Vincent-van-Gogh-New-1889.jpg",
-            alt: "Starry Night",
-          },
-        ].map((image, index) => (
+        {(art.images.length
+          ? art.images
+          : [
+              {
+                url: "https://cdn.britannica.com/78/43678-050-F4DC8D93/Starry-Night-canvas-Vincent-van-Gogh-New-1889.jpg",
+                name: "Starry Night",
+              },
+            ]
+        ).map((image, index) => (
           <Carousel.Item key={index}>
-            <img className="d-block w-100" src={image.url} alt={image.alt} />
+            <img className="d-block w-100" src={image.url} alt={image.name} />
           </Carousel.Item>
         ))}
       </Carousel>
