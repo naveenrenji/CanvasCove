@@ -166,6 +166,7 @@ const ArtSchema = new Schema(
               "artist.images": 1,
               "artist.isFollowedByCurrentUser": 1,
               "artist.isFollowingCurrentUser": 1,
+              artType: 1,
               currentUserInteractions: 1,
               priceInCents: 1,
               images: 1,

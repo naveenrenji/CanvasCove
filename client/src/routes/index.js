@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes as BrowserRoutes, Route } from "react-router-dom";
+import { Routes as BrowserRoutes, Outlet, Route } from "react-router-dom";
 
 import Layout from "./Layout";
 import AuthHoc from "./AuthHoc";
@@ -7,12 +7,14 @@ import Redirector from "./Redirector";
 import RequireAuth from "./RequireAuth";
 
 import {
-    Home,
-    Login,
-    Signup,
-    Welcome,
-    NotFound,
-    Art
+  Home,
+  Login,
+  Signup,
+  Welcome,
+  NotFound,
+  Art,
+  CreateArt,
+  EditArt,
 } from "../components";
 
 const Routes = () => {
@@ -45,14 +47,34 @@ const Routes = () => {
             </RequireAuth>
           }
         />
-        <Route
-          path="/art/:id"
-          element={
-            <RequireAuth>
-              <Art />
-            </RequireAuth>
-          }
-        />
+        <Route path="/art" element={<Outlet />}>
+          {/* <Route index element={<FindMyHomies />} /> */}
+          <Route
+            path=":id"
+            element={
+              <RequireAuth>
+                <Art />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path=":id/edit"
+            element={
+              <RequireAuth>
+                <EditArt />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="create"
+            element={
+              <RequireAuth>
+                <CreateArt />
+              </RequireAuth>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
+        </Route>
 
         <Route path="*" element={<NotFound />} />
       </Route>

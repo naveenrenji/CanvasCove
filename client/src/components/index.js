@@ -6,3 +6,5 @@ export { default as Welcome } from "./Welcome";
 export { default as AuthProvider } from "./AuthProvider";
 export { default as Loader } from "./common/Loader";
 export { default as Art } from "./Art";
+export { default as CreateArt } from "./CreateArt";
+export { default as EditArt } from "./EditArt";

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import {
+  ART_VISIBILITY,
   FEED_LIMIT,
   INTERACTION_TYPES,
   TOP_COMMENTS_COUNT,
@@ -22,6 +23,8 @@ export const getFeed = async (currentUser, page = 1) => {
       {
         $match: {
           artist: { $in: followingUsers },
+          isVisible: true,
+          visibility: ART_VISIBILITY.PUBLIC,
         },
       },
       {
@@ -337,7 +340,7 @@ export const createArtComment = async (currentUser, artId, comment) => {
 // TODO: Implement this using withMetrics function as it will retrun art metrics, if any.
 export const searchArt = async (currentUser, { keyword }) => {};
 
-export const getArt = async (currentUser, artId) => {
+export const getArt = async (currentUser, artId, forUpdate = false) => {
   if (!currentUser) {
     throw { status: 401, message: "Unauthorised request" };
   }
@@ -349,9 +352,31 @@ export const getArt = async (currentUser, artId) => {
   let result, art;
 
   try {
-    result = await Art.withMetrics(currentUser, {
-      $match: { _id: new mongoose.Types.ObjectId(artId) },
-    });
+    result = forUpdate
+      ? await Art.aggregate([
+          {
+            $match: {
+              _id: new mongoose.Types.ObjectId(artId),
+              artist: currentUser._id,
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              artist: 1,
+              visibility: 1,
+              isVisible: 1,
+              images: 1,
+              title: 1,
+              description: 1,
+              priceInCents: 1,
+              artType: 1,
+            },
+          },
+        ])
+      : await Art.withMetrics(currentUser, {
+          $match: { _id: new mongoose.Types.ObjectId(artId) },
+        });
     art = result?.[0];
   } catch (error) {
     throw { status: 400, message: error.toString() };

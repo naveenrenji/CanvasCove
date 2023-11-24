@@ -11,8 +11,8 @@ export const USER_ROLES = {
 };
 
 export const ART_VISIBILITY = {
-  PUBLIC: "public",
-  PRIVATE: "private",
+  PUBLIC: "Public",
+  PRIVATE: "Private",
 };
 
 export const ART_TYPES = {

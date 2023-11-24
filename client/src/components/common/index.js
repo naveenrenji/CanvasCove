@@ -5,3 +5,4 @@ export { default as IconButton } from "./IconButton.js";
 export { default as OverlayLink } from "./OverlayLink.js";
 export { default as Icon } from "./Icon.js";
 export { default as ButtonWithIcon } from "./ButtonWithIcon.js";
+export { default as ArtForm } from "./ArtForm.js";

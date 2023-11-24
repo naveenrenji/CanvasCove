@@ -1,0 +1,13 @@
+.loader-modal .modal-dialog {
+  justify-content: center;
+}
+
+.loader-modal .modal-dialog .modal-content {
+  width: auto;
+  background: none;
+  border: none;
+}
+
+.loader-modal.loader-modal-progress .modal-dialog .modal-content {
+  width: 50vw;
+}

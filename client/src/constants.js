@@ -24,3 +24,16 @@ export const USER_ROLES = {
   ARTIST: "Artist",
   CONNOISSEUR: "Connoisseur",
 };
+
+export const ART_TYPES = {
+  PAINTING: "Painting",
+  SCULPTURE: "Sculpture",
+  PHOTOGRAPHY: "Photography",
+  DIGITAL_ART: "Digital Art",
+  OTHER: "Other",
+};
+
+export const ART_VISIBILITY = {
+  PUBLIC: "Public",
+  PRIVATE: "Private",
+};
