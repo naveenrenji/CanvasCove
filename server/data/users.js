@@ -11,11 +11,17 @@ export const getUser = async (currentUser, userId) => {
     }
 
     let artQuery = {};
-    if (user.isArtist) {  // Assuming there's an 'isArtist' flag in the user model
-      artQuery = { artist: userId };
+    if (user.role === USER_ROLES.ARTIST) {
+      artQuery = { artist: user._id };
     } else {
-      // Assuming a structure where user likes are stored within each art document
-      artQuery = { 'likes.userId': userId };
+      artQuery = {
+        interactions: {
+          $elemMatch: {
+            user: new mongoose.Types.ObjectId(user._id),
+            type: "like",
+          },
+        },
+      };
     }
 
     const artList = await Art.find(artQuery).limit(5);
@@ -24,6 +30,7 @@ export const getUser = async (currentUser, userId) => {
     throw { status: error.status || 500, message: error.message || "Internal Server Error" };
   }
 };
+
 
 
 export const getArtList = async (currentUser, userId) => {
@@ -74,10 +81,14 @@ export const getMyLikedArt = async (currentUser) => {
   return artList;
 };
 
-// TODO: Update current user and respond with updated user by calling getUser function.
 export const updateCurrentUser = async (currentUser, body) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(currentUser._id, body, { new: true });
+    // Assuming you want to prevent updating certain fields like 'role' or 'encryptedPassword'
+    const fieldsToUpdate = { ...body };
+    delete fieldsToUpdate.role;
+    delete fieldsToUpdate.encryptedPassword;
+
+    const updatedUser = await User.findByIdAndUpdate(currentUser._id, fieldsToUpdate, { new: true });
     if (!updatedUser) {
       throw { status: 404, message: "User not found" };
     }
@@ -87,10 +98,15 @@ export const updateCurrentUser = async (currentUser, body) => {
   }
 };
 
-// TODO: Implement search users
+
 export const searchUsers = async (currentUser, { keyword }) => {
   try {
-    const users = await User.find({ $text: { $search: keyword } });
+    const searchQuery = { $or: [
+      { firstName: { $regex: keyword, $options: 'i' } },
+      { lastName: { $regex: keyword, $options: 'i' } },
+      { displayName: { $regex: keyword, $options: 'i' } }
+    ]};
+    const users = await User.find(searchQuery);
     return users;
   } catch (error) {
     throw { status: error.status || 500, message: error.message || "Internal Server Error" };
