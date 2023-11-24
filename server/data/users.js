@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import { Art, User } from "../models/index.js";
 
-// TODO: Get user and his images.
-// If user is artist, get his art as well. Else get users liked art. limit to latest 5
 export const getUser = async (currentUser, userId) => {
   try {
+    // TODO: Get if the user is being followed by the current user and if the current user is being followed by the user
+    // Refer: updateFollowingStatus function
     const user = await User.findById(userId);
     if (!user) {
       throw { status: 404, message: "User not found" };
@@ -24,7 +24,10 @@ export const getUser = async (currentUser, userId) => {
       };
     }
 
+    // TODO: You can simply use getArtList or getMyLikedArt functions here. Add a new limit parameter to those function.
+    // TODO: Update the withMetrics function to accept a limit parameter(only if available) and use it in the aggregation pipeline.
     const artList = await Art.find(artQuery).limit(5);
+    // TODO: This is good, but you have to update the route accordingly. Check and update get users/me and users/:id routes.
     return { user, artList };
   } catch (error) {
     throw { status: error.status || 500, message: error.message || "Internal Server Error" };
@@ -81,6 +84,9 @@ export const getMyLikedArt = async (currentUser) => {
   return artList;
 };
 
+// TODO: BODY SHOULD BE VALIDATED
+// TODO: Can only update firstName, lastName, dob, bio and gender. Update this accordingly.
+// TODO: Cannot create new user if not available. It should throw an error.
 export const updateCurrentUser = async (currentUser, body) => {
   try {
     // Assuming you want to prevent updating certain fields like 'role' or 'encryptedPassword'
@@ -98,7 +104,8 @@ export const updateCurrentUser = async (currentUser, body) => {
   }
 };
 
-
+// TODO: Also send if users are being followed by current user. Refer: updateFollowingStatus function
+// If a pattern emerges for this, you can move it to a separate user `withMetrics` model function(like witMetrics in Art model))
 export const searchUsers = async (currentUser, { keyword }) => {
   try {
     const searchQuery = { $or: [
