@@ -4,8 +4,27 @@ import { Art, User } from "../models/index.js";
 // TODO: Get user and his images.
 // If user is artist, get his art as well. Else get users liked art. limit to latest 5
 export const getUser = async (currentUser, userId) => {
-  return currentUser;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw { status: 404, message: "User not found" };
+    }
+
+    let artQuery = {};
+    if (user.isArtist) {  // Assuming there's an 'isArtist' flag in the user model
+      artQuery = { artist: userId };
+    } else {
+      // Assuming a structure where user likes are stored within each art document
+      artQuery = { 'likes.userId': userId };
+    }
+
+    const artList = await Art.find(artQuery).limit(5);
+    return { user, artList };
+  } catch (error) {
+    throw { status: error.status || 500, message: error.message || "Internal Server Error" };
+  }
 };
+
 
 export const getArtList = async (currentUser, userId) => {
   if (!currentUser) {
@@ -56,10 +75,27 @@ export const getMyLikedArt = async (currentUser) => {
 };
 
 // TODO: Update current user and respond with updated user by calling getUser function.
-export const updateCurrentUser = async (currentUser, body) => {};
+export const updateCurrentUser = async (currentUser, body) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(currentUser._id, body, { new: true });
+    if (!updatedUser) {
+      throw { status: 404, message: "User not found" };
+    }
+    return getUser(updatedUser, updatedUser._id);
+  } catch (error) {
+    throw { status: error.status || 500, message: error.message || "Internal Server Error" };
+  }
+};
 
 // TODO: Implement search users
-export const searchUsers = async (currentUser, { keyword }) => {};
+export const searchUsers = async (currentUser, { keyword }) => {
+  try {
+    const users = await User.find({ $text: { $search: keyword } });
+    return users;
+  } catch (error) {
+    throw { status: error.status || 500, message: error.message || "Internal Server Error" };
+  }
+};
 
 export const updateFollowingStatus = async (currentUser, userId) => {
   if (!currentUser) {
