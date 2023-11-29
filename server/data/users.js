@@ -1,35 +1,22 @@
 import mongoose from "mongoose";
 import { Art, User } from "../models/index.js";
-import { USER_ROLES } from "../constants.js";
+import xss from "xss";
+import {
+  validateDOB,
+  validateGender,
+  validateString,
+} from "../validators/helpers.js";
 
 export const getUser = async (currentUser, userId) => {
   try {
-    // TODO: Get if the user is being followed by the current user and if the current user is being followed by the user
-    // Refer: updateFollowingStatus function
-    const user = await User.findById(userId);
+    const user =
+      currentUser?._id?.toString() === userId?.toString()
+        ? await User.viewCurrentUser(currentUser)
+        : await User.view(currentUser, userId);
     if (!user) {
       throw { status: 404, message: "User not found" };
     }
-
-    let artQuery = {};
-    if (user.role === USER_ROLES.ARTIST) {
-      artQuery = { artist: user._id };
-    } else {
-      artQuery = {
-        interactions: {
-          $elemMatch: {
-            user: new mongoose.Types.ObjectId(user._id),
-            type: "like",
-          },
-        },
-      };
-    }
-
-    // TODO: You can simply use getArtList or getMyLikedArt functions here. Add a new limit parameter to those function.
-    // TODO: Update the withMetrics function to accept a limit parameter(only if available) and use it in the aggregation pipeline.
-    const artList = await Art.find(artQuery).limit(5);
-    // TODO: This is good, but you have to update the route accordingly. Check and update get users/me and users/:id routes.
-    return { user, artList };
+    return user;
   } catch (error) {
     throw {
       status: error.status || 500,
@@ -86,24 +73,40 @@ export const getMyLikedArt = async (currentUser) => {
   return artList;
 };
 
-// TODO: BODY SHOULD BE VALIDATED
-// TODO: Can only update firstName, lastName, dob, bio and gender. Update this accordingly.
-// TODO: Cannot create new user if not available. It should throw an error.
 export const updateCurrentUser = async (currentUser, body) => {
   try {
-    // Assuming you want to prevent updating certain fields like 'role' or 'encryptedPassword'
-    const fieldsToUpdate = { ...body };
-    delete fieldsToUpdate.role;
-    delete fieldsToUpdate.encryptedPassword;
+    const { gender, firstName, lastName, dob, bio } = body;
 
-    const updatedUser = await User.findByIdAndUpdate(
-      currentUser._id,
-      fieldsToUpdate,
-      { new: true }
-    );
-    if (!updatedUser) {
-      throw { status: 404, message: "User not found" };
-    }
+    let cleanGender = xss(gender);
+    cleanGender = validateGender(cleanGender);
+
+    let cleanFirstName = xss(firstName);
+    cleanFirstName = validateString(cleanFirstName, "firstName", {
+      maxLength: 50,
+    });
+
+    let cleanLastName = xss(lastName);
+    cleanLastName = validateString(cleanLastName, "lastName", {
+      maxLength: 50,
+    });
+
+    let cleanBio = xss(bio);
+    cleanBio = validateString(cleanBio, "bio", { maxLength: 200 });
+
+    let cleanDob = xss(dob);
+    cleanDob = validateDOB(cleanDob, "dob");
+
+    const fieldsToUpdate = {
+      firstName: cleanFirstName,
+      lastName: cleanLastName,
+      bio: cleanBio,
+      dob: cleanDob,
+      gender: cleanGender,
+    };
+
+    // Call mongoose update function and pass in the fields to update
+    await User.updateOne({ _id: currentUser._id }, fieldsToUpdate);
+
     return getUser(updatedUser, updatedUser._id);
   } catch (error) {
     throw {
@@ -113,18 +116,23 @@ export const updateCurrentUser = async (currentUser, body) => {
   }
 };
 
-// TODO: Also send if users are being followed by current user. Refer: updateFollowingStatus function
-// If a pattern emerges for this, you can move it to a separate user `withMetrics` model function(like witMetrics in Art model))
 export const searchUsers = async (currentUser, { keyword }) => {
   try {
-    const searchQuery = {
-      $or: [
-        { firstName: { $regex: keyword, $options: "i" } },
-        { lastName: { $regex: keyword, $options: "i" } },
-        { displayName: { $regex: keyword, $options: "i" } },
+    const users = await User.fetch(
+      currentUser,
+      [
+        {
+          $match: {
+            $or: [
+              { firstName: { $regex: keyword, $options: "i" } },
+              { lastName: { $regex: keyword, $options: "i" } },
+              { displayName: { $regex: keyword, $options: "i" } },
+            ],
+          },
+        },
       ],
-    };
-    const users = await User.find(searchQuery);
+      { page: 1, limit: 10 }
+    );
     return users;
   } catch (error) {
     throw {
@@ -187,66 +195,11 @@ export const updateFollowingStatus = async (currentUser, userId) => {
   }
 
   // Fetch user data and also add if current user is following as one of the keys
-  const result = await User.aggregate([
-    {
-      $match: {
-        _id: new mongoose.Types.ObjectId(userId),
-      },
-    },
-    {
-      $lookup: {
-        from: "images",
-        let: { imageIds: "$images" },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $in: ["$_id", "$$imageIds"] },
-            },
-          },
-        ],
-        as: "images",
-      },
-    },
-    {
-      $addFields: {
-        isFollowedByCurrentUser: {
-          $and: [
-            {
-              $in: [currentUser._id, "$followers"],
-            },
-            {
-              $in: ["$_id", currentUser.following],
-            },
-          ],
-        },
-        isFollowingCurrentUser: {
-          $and: [
-            {
-              $in: [currentUser._id, "$following"],
-            },
-            {
-              $in: ["$_id", currentUser.followers],
-            },
-          ],
-        },
-      },
-    },
-    {
-      $project: {
-        _id: 1,
-        firstName: 1,
-        lastName: 1,
-        displayName: 1,
-        images: 1,
-        isFollowedByCurrentUser: 1,
-        isFollowingCurrentUser: 1,
-      },
-    },
-  ]);
+  const updatedUser = await User.view(currentUser, userId);
 
-  if (!result || !result?.[0]) {
+  if (!updatedUser) {
     throw { status: 400, message: "Could not get user" };
   }
 
-  return result[0];
+  return updatedUser;
 };

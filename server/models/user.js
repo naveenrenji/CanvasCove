@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 
 import JwtService from "../services/jwt-service.js";
 import PasswordService from "../services/password-service.js";
@@ -121,6 +121,120 @@ const UserSchema = new Schema(
           _id: this._id,
           email: this.email,
         });
+      },
+    },
+    statics: {
+      async viewCurrentUser(currentUser) {
+        const result = await this.aggregate([
+          {
+            $match: {
+              _id: new mongoose.Types.ObjectId(currentUser._id.toString()),
+            },
+          },
+          {
+            $lookup: {
+              from: "images",
+              let: { imageIds: "$images" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $in: ["$_id", "$$imageIds"] },
+                  },
+                },
+              ],
+              as: "images",
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              firstName: 1,
+              lastName: 1,
+              displayName: 1,
+              email: 1,
+              bio: 1,
+              dob: 1,
+              images: 1,
+              gender: 1,
+              role: 1,
+            },
+          },
+        ]);
+        return result?.length ? result[0] : null;
+      },
+      async view(currentUser, userId) {
+        const result = await this.fetch(currentUser, [
+          {
+            $match: {
+              _id: new mongoose.Types.ObjectId(userId.toString()),
+            },
+          },
+        ]);
+
+        return result?.length ? result[0] : null;
+      },
+      async fetch(currentUser, matchQuery, { page, limit, sortQuery } = {}) {
+        return this.aggregate([
+          ...matchQuery,
+          {
+            $lookup: {
+              from: "images",
+              let: { imageIds: "$images" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $in: ["$_id", "$$imageIds"] },
+                  },
+                },
+              ],
+              as: "images",
+            },
+          },
+          {
+            $addFields: {
+              isFollowedByCurrentUser: {
+                $and: [
+                  {
+                    $in: [currentUser._id, "$followers"],
+                  },
+                  {
+                    $in: ["$_id", currentUser.following],
+                  },
+                ],
+              },
+              isFollowingCurrentUser: {
+                $and: [
+                  {
+                    $in: [currentUser._id, "$following"],
+                  },
+                  {
+                    $in: ["$_id", currentUser.followers],
+                  },
+                ],
+              },
+            },
+          },
+          // sort by updated at
+          sortQuery || {
+            $sort: {
+              updatedAt: -1,
+            },
+          },
+          ...(page && limit
+            ? [{ $skip: (page - 1) * limit }, { $limit: limit }]
+            : []),
+          {
+            $project: {
+              _id: 1,
+              firstName: 1,
+              lastName: 1,
+              displayName: 1,
+              images: 1,
+              isFollowedByCurrentUser: 1,
+              isFollowingCurrentUser: 1,
+            },
+          },
+        ]);
       },
     },
   }
