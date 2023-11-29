@@ -1,13 +1,14 @@
 import mongoose from "mongoose";
-import {
-  ART_VISIBILITY,
-  FEED_LIMIT,
-  INTERACTION_TYPES,
-  TOP_COMMENTS_COUNT,
-} from "../constants.js";
+import { ART_VISIBILITY, FEED_LIMIT, INTERACTION_TYPES } from "../constants.js";
 import { Art } from "../models/index.js";
-import { validateInteractionType } from "../validators/helpers.js";
+import {
+  checkBoolean,
+  validateInteractionType,
+  validateNumber,
+  validateString,
+} from "../validators/helpers.js";
 import ImageService from "../services/image-service.js";
+import xss from "xss";
 
 export const getFeed = async (currentUser, page = 1) => {
   if (!currentUser) {
@@ -153,8 +154,51 @@ export const getFeed = async (currentUser, page = 1) => {
   return feed;
 };
 
-// TODO: Implement this and return created art by calling getArt function.
-export const createArt = async (currentUser, body) => {};
+export const createArt = async (currentUser, body) => {
+  if (!currentUser) {
+    throw { status: 401, message: "Unauthorised request" };
+  }
+
+  if (!body) {
+    throw { status: 400, message: "Please provide a valid art body!" };
+  }
+
+  let art;
+
+  const { title, description, artType, priceInCents, visibility, isDraft } =
+    body;
+
+  let cleanTitle = xss(title);
+  cleanTitle = validateString(cleanTitle, "Title");
+
+  let cleanDescription = xss(description);
+  cleanDescription = validateString(cleanDescription, "Description");
+
+  let cleanArtType = xss(artType);
+  cleanArtType = validateString(cleanArtType, "Art Type");
+
+  let cleanPriceInCents = xss(priceInCents);
+  cleanPriceInCents = validateNumber(cleanPriceInCents, "Price");
+
+  let cleanVisibility = xss(visibility);
+  cleanVisibility = validateString(cleanVisibility, "Visibility");
+
+  let cleanIsDraft = xss(isDraft);
+  if (!checkBoolean(cleanIsDraft)) {
+    throw { status: 400, message: "Please provide a valid isDraft!" };
+  }
+
+  try {
+    art = await Art.create({
+      ...body,
+      artist: currentUser._id,
+    });
+  } catch (error) {
+    throw { status: 400, message: error.toString() };
+  }
+
+  return getArt(currentUser, art._id);
+};
 
 export const saveArtInteraction = async (
   currentUser,
@@ -338,8 +382,36 @@ export const createArtComment = async (currentUser, artId, comment) => {
   return getArtComments(currentUser, artId);
 };
 
-// TODO: Implement this using withMetrics function as it will retrun art metrics, if any.
-export const searchArt = async (currentUser, { keyword }) => {};
+export const searchArt = async (currentUser, { keyword }) => {
+  if (!currentUser) {
+    throw { status: 401, message: "Unauthorised request" };
+  }
+
+  if (!keyword) {
+    throw { status: 400, message: "Please provide a valid keyword!" };
+  }
+
+  let result;
+
+  try {
+    result = await Art.withMetrics(currentUser, {
+      $match: {
+        $or: [
+          { title: { $regex: keyword, $options: "i" } },
+          { description: { $regex: keyword, $options: "i" } },
+        ],
+      },
+    });
+  } catch (error) {
+    throw { status: 400, message: error.toString() };
+  }
+
+  if (!result) {
+    throw { status: 400, message: "Could not get art" };
+  }
+
+  return result;
+};
 
 export const getArt = async (currentUser, artId, forUpdate = false) => {
   if (!currentUser) {
@@ -357,7 +429,7 @@ export const getArt = async (currentUser, artId, forUpdate = false) => {
       ? await Art.aggregate([
           {
             $match: {
-              _id: new mongoose.Types.ObjectId(artId),
+              _id: new mongoose.Types.ObjectId(artId?.toString()),
               artist: currentUser._id,
             },
           },
@@ -404,13 +476,63 @@ export const getArt = async (currentUser, artId, forUpdate = false) => {
   return art;
 };
 
-// TODO: Implement this and call getArt function to return updated art
-// DONT USE WITHMETRICS FUNCTION TO FETCH INITIAL ART DATA. ONLY USE IT TO FETCH FINAL UPDATED ART DATA.
-// Refer saveArtInteraction function for example.
-export const updateArt = async (currentUser, artId, body) => {};
+export const updateArt = async (currentUser, artId, body) => {
+  if (!currentUser) {
+    throw { status: 401, message: "Unauthorised request" };
+  }
 
-// TODO: Implement this and return boolean if its deleted or not. Make sure images are deleted as well(Call ImageService.deleteImages with art images array)
-// DONT USE WITHMETRICS FUNCTION
+  if (!body) {
+    throw { status: 400, message: "Please provide a valid art body!" };
+  }
+
+  let art;
+
+  try {
+    art = await Art.findById(artId);
+  } catch (error) {
+    throw { status: 400, message: error.toString() };
+  }
+
+  if (!art) {
+    throw { status: 400, message: "Please provide a valid art id!" };
+  }
+
+  if (!art?.artist?.toString() === currentUser?._id?.toString()) {
+    throw { status: 400, message: "You can't update this art!" };
+  }
+
+  const { title, description, artType, priceInCents, visibility, isDraft } =
+    body;
+
+  let cleanTitle = xss(title);
+  cleanTitle = validateString(cleanTitle, "Title");
+
+  let cleanDescription = xss(description);
+  cleanDescription = validateString(cleanDescription, "Description");
+
+  let cleanArtType = xss(artType);
+  cleanArtType = validateString(cleanArtType, "Art Type");
+
+  let cleanPriceInCents = xss(priceInCents);
+  cleanPriceInCents = validateNumber(cleanPriceInCents, "Price");
+
+  let cleanVisibility = xss(visibility);
+  cleanVisibility = validateString(cleanVisibility, "Visibility");
+
+  let cleanIsDraft = xss(isDraft);
+  if (!checkBoolean(cleanIsDraft)) {
+    throw { status: 400, message: "Please provide a valid isDraft!" };
+  }
+
+  try {
+    await art.updateOne(body);
+  } catch (error) {
+    throw { status: 400, message: error.toString() };
+  }
+
+  return getArt(currentUser, art._id);
+};
+
 export const deleteArt = async (currentUser, artId) => {
   if (!currentUser) {
     throw { status: 401, message: "Unauthorised request" };

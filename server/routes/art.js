@@ -41,7 +41,6 @@ artRouter.route("/search").post(async (req, res) => {
 
 artRouter.route("/").post(isArtist, async (req, res) => {
   try {
-    // TODO: clean and validate body
     const createdArt = await artData.createArt(req.currentUser, req.body);
     return res.json({ art: await formatItemResponse(req, createdArt, "Art") });
   } catch (error) {
@@ -125,8 +124,6 @@ artRouter.route("/:id").put(isArtist, isArtCreator, async (req, res) => {
     let cleanId = xss(id);
     cleanId = validateId(cleanId);
 
-    // TODO: clean and validate body
-
     const art = await artData.updateArt(req.currentUser, id, req.body);
     return res.json({ art: await formatItemResponse(req, art, "Art") });
   } catch (error) {
@@ -140,8 +137,8 @@ artRouter.route("/:id").delete(isArtist, isArtCreator, async (req, res) => {
     let cleanId = xss(id);
     cleanId = validateId(cleanId);
 
-    const art = await artData.deleteArt(req.currentUser, id);
-    return res.json({ user: await formatItemResponse(req, art, "Art") });
+    await artData.deleteArt(req.currentUser, id);
+    return res.json({ deleted: true });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
