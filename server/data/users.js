@@ -47,7 +47,7 @@ export const getArtList = async (currentUser, userId) => {
   return artList;
 };
 
-export const getMyLikedArt = async (currentUser) => {
+export const getUserLikedArt = async (currentUser, userId) => {
   if (!currentUser) {
     throw { status: 401, message: "Unauthorised request" };
   }
@@ -60,7 +60,7 @@ export const getMyLikedArt = async (currentUser) => {
       $match: {
         interactions: {
           $elemMatch: {
-            user: new mongoose.Types.ObjectId(currentUser._id),
+            user: new mongoose.Types.ObjectId(userId),
             type: "like",
           },
         },

@@ -8,3 +8,4 @@ export { default as Loader } from "./common/Loader";
 export { default as Art } from "./Art";
 export { default as CreateArt } from "./CreateArt";
 export { default as EditArt } from "./EditArt";
+export { default as ArtList } from "./ArtList";

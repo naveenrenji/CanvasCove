@@ -10,6 +10,7 @@ import {
   InputGroup,
   Row,
 } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { ART_TYPES, ART_VISIBILITY } from "../../constants";
 import { artAPI } from "../../api";
 import Loader from "./Loader";
@@ -20,6 +21,7 @@ import Loader from "./Loader";
  */
 const ArtForm = ({ art = {}, onSuccess }) => {
   const isEditing = React.useMemo(() => !!art._id, [art]);
+  const navigate = useNavigate();
 
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
@@ -53,15 +55,19 @@ const ArtForm = ({ art = {}, onSuccess }) => {
     error: "",
   });
 
-  const [isDraft, setIsDraft] = React.useState({
-    value: art.isDraft || false,
+  const [isVisible, setIsVisible] = React.useState({
+    value: art.isVisible || false,
     error: "",
   });
 
   const [images, setImages] = React.useState({
-    value: art.images || [],
+    value: [],
     error: "",
   });
+
+  const [imagesMarkedForDeletion, setImagesMarkedForDeletion] = React.useState(
+    []
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,7 +80,7 @@ const ArtForm = ({ art = {}, onSuccess }) => {
         artType: artType.value,
         priceInCents: Number((price.value * 100).toFixed(0)),
         visibility: visibility.value,
-        isDraft: isDraft.value,
+        isVisible: isVisible.value,
       };
       setProgressData({
         progress: 0,
@@ -85,25 +91,38 @@ const ArtForm = ({ art = {}, onSuccess }) => {
         ? await artAPI.updateArtApi(art._id, data)
         : await artAPI.createArtApi(data);
 
-      if (images.value?.length) {
+      const imagesCount = images.value?.length;
+
+      const imagesToDelete = imagesMarkedForDeletion.map((image) => image._id);
+
+      const totalImagesCount = imagesCount + imagesToDelete.length;
+
+      if (totalImagesCount) {
         setProgressData({
           progress: 50,
-          progressText: "Uploading images...",
+          progressText: "Updating images...",
         });
 
-        const imagesCount = images.value?.length;
+        const uploadTotalProgress = Math.round(
+          (50 * imagesCount) / totalImagesCount
+        );
 
         for (let i = 0; i < imagesCount; i++) {
           await artAPI.uploadImageApi(artRes._id, images.value[i], (event) => {
             const progress =
               50 +
-              Math.round((50 / imagesCount) * (event.loaded / event.total));
+              Math.round(
+                (uploadTotalProgress / imagesCount) *
+                  (event.loaded / event.total)
+              );
             setProgressData({
               progress,
               progressText: `Uploading images... (${i + 1}/${imagesCount})`,
             });
           });
         }
+
+        await artAPI.deleteImagesApi(artRes._id, imagesToDelete);
       }
 
       setProgressData({
@@ -220,8 +239,11 @@ const ArtForm = ({ art = {}, onSuccess }) => {
                       type="number"
                       placeholder="Price"
                       value={price.value}
-                      onChange={(value) => {
-                        setPrice({ value, error: "" });
+                      onChange={(event) => {
+                        setPrice({
+                          value: event.target.value || "",
+                          error: "",
+                        });
                       }}
                     />
                   </FloatingLabel>
@@ -252,13 +274,13 @@ const ArtForm = ({ art = {}, onSuccess }) => {
             </div>
 
             <Form.Check
-              name="isDraft"
+              name="isVisible"
               type="switch"
               id="draft-switch"
-              label={`Draft - ${isDraft.value ? "Yes" : "No"}`}
-              checked={isDraft.value}
+              label={`Draft - ${!isVisible.value ? "Yes" : "No"}`}
+              checked={!isVisible.value}
               onChange={(event) => {
-                setIsDraft({ value: event.target.checked, error: "" });
+                setIsVisible({ value: !event.target.checked, error: "" });
               }}
             />
             <Form.Text muted>Draft art is not visible to anyone.</Form.Text>
@@ -278,7 +300,14 @@ const ArtForm = ({ art = {}, onSuccess }) => {
               Reset
             </Button>
 
-            <Button variant="danger" type="cancel" className="me-3">
+            <Button
+              variant="danger"
+              type="cancel"
+              className="me-3"
+              onClick={() => {
+                navigate("/art");
+              }}
+            >
               Cancel
             </Button>
           </Card.Footer>

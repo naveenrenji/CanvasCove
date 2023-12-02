@@ -138,6 +138,8 @@ const validateNumber = (value, name) => {
   if (isNaN(value)) {
     throw { status: 400, message: `${name} is not a number!` };
   }
+
+  return value;
 };
 
 const validateNumberRange = (value, name, opts = {}) => {

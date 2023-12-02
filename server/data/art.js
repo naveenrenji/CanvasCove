@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
-import { ART_VISIBILITY, FEED_LIMIT, INTERACTION_TYPES } from "../constants.js";
+import {
+  ART_VISIBILITY,
+  FEED_LIMIT,
+  INTERACTION_TYPES,
+  USER_ROLES,
+} from "../constants.js";
 import { Art } from "../models/index.js";
 import {
   checkBoolean,
@@ -18,6 +23,9 @@ export const getFeed = async (currentUser, page = 1) => {
   let feed;
 
   const followingUsers = currentUser.following.map((user) => user._id);
+  if (currentUser.role === USER_ROLES.ARTIST) {
+    followingUsers.push(currentUser._id);
+  }
   const skipAmount = (page - 1) * FEED_LIMIT;
 
   try {
@@ -165,32 +173,11 @@ export const createArt = async (currentUser, body) => {
 
   let art;
 
-  const { title, description, artType, priceInCents, visibility, isDraft } =
-    body;
-
-  let cleanTitle = xss(title);
-  cleanTitle = validateString(cleanTitle, "Title");
-
-  let cleanDescription = xss(description);
-  cleanDescription = validateString(cleanDescription, "Description");
-
-  let cleanArtType = xss(artType);
-  cleanArtType = validateString(cleanArtType, "Art Type");
-
-  let cleanPriceInCents = xss(priceInCents);
-  cleanPriceInCents = validateNumber(cleanPriceInCents, "Price");
-
-  let cleanVisibility = xss(visibility);
-  cleanVisibility = validateString(cleanVisibility, "Visibility");
-
-  let cleanIsDraft = xss(isDraft);
-  if (!checkBoolean(cleanIsDraft)) {
-    throw { status: 400, message: "Please provide a valid isDraft!" };
-  }
+  const fieldsToCreate = validateArtBody(body);
 
   try {
     art = await Art.create({
-      ...body,
+      ...fieldsToCreate,
       artist: currentUser._id,
     });
   } catch (error) {
@@ -501,31 +488,11 @@ export const updateArt = async (currentUser, artId, body) => {
     throw { status: 400, message: "You can't update this art!" };
   }
 
-  const { title, description, artType, priceInCents, visibility, isDraft } =
-    body;
-
-  let cleanTitle = xss(title);
-  cleanTitle = validateString(cleanTitle, "Title");
-
-  let cleanDescription = xss(description);
-  cleanDescription = validateString(cleanDescription, "Description");
-
-  let cleanArtType = xss(artType);
-  cleanArtType = validateString(cleanArtType, "Art Type");
-
-  let cleanPriceInCents = xss(priceInCents);
-  cleanPriceInCents = validateNumber(cleanPriceInCents, "Price");
-
-  let cleanVisibility = xss(visibility);
-  cleanVisibility = validateString(cleanVisibility, "Visibility");
-
-  let cleanIsDraft = xss(isDraft);
-  if (!checkBoolean(cleanIsDraft)) {
-    throw { status: 400, message: "Please provide a valid isDraft!" };
-  }
+  const fieldsToUpdate = validateArtBody(body);
 
   try {
-    await art.updateOne(body);
+    // Update without loosing other information
+    await Art.updateOne({ _id: artId }, { $set: fieldsToUpdate });
   } catch (error) {
     throw { status: 400, message: error.toString() };
   }
@@ -573,4 +540,39 @@ export const deleteArt = async (currentUser, artId) => {
   }
 
   return true;
+};
+
+const validateArtBody = (body) => {
+  const { title, description, artType, priceInCents, visibility, isVisible } =
+    body;
+
+  let cleanTitle = xss(title);
+  cleanTitle = validateString(cleanTitle, "Title");
+
+  let cleanDescription = xss(description);
+  cleanDescription = validateString(cleanDescription, "Description");
+
+  let cleanArtType = xss(artType);
+  cleanArtType = validateString(cleanArtType, "Art Type");
+
+  let cleanPriceInCents = xss(priceInCents);
+  cleanPriceInCents = Number(cleanPriceInCents);
+  cleanPriceInCents = validateNumber(cleanPriceInCents, "Price");
+
+  let cleanVisibility = xss(visibility);
+  cleanVisibility = validateString(cleanVisibility, "Visibility");
+
+  let cleanIsVisible = isVisible;
+  if (!checkBoolean(cleanIsVisible)) {
+    throw { status: 400, message: "Please provide a valid isVisible!" };
+  }
+
+  return {
+    title: cleanTitle,
+    description: cleanDescription,
+    artType: cleanArtType,
+    priceInCents: cleanPriceInCents,
+    visibility: cleanVisibility,
+    isVisible: cleanIsVisible,
+  };
 };

@@ -46,13 +46,21 @@ export const deleteArtApi = async (artId) => {
 
 export const uploadImageApi = async (artId, image, onUploadProgress) => {
   const formData = new FormData();
-  formData.append("image", image);
+  formData.append("file", image);
 
   const res = await httpInstance.post(`/images/Art/${artId}/upload`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
     onUploadProgress,
+  });
+
+  return res.data;
+};
+
+export const deleteImagesApi = async (artId, imageIds) => {
+  const res = await httpInstance.delete(`/images/Art/${artId}/bulk-delete`, {
+    data: { imageIds },
   });
 
   return res.data;

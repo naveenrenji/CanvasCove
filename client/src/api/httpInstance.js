@@ -10,11 +10,26 @@ const httpInstance = axios.create({
 
 httpInstance.interceptors.request.use(
   (config) => {
-    const accesstoken = getFromStorage(process.env.REACT_APP_USER_ACCESS_TOKEN_KEY);
+    const accesstoken = getFromStorage(
+      process.env.REACT_APP_USER_ACCESS_TOKEN_KEY
+    );
     config.headers["accesstoken"] = accesstoken || "";
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+httpInstance.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error?.response?.status === 401) {
+      localStorage.removeItem(process.env.REACT_APP_USER_ACCESS_TOKEN_KEY);
+      window.location.href = "/login";
+    }
     return Promise.reject(error);
   }
 );

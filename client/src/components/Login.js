@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Form, Button, Card, Alert } from 'react-bootstrap';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { authAPI } from "../api";
 import useAuth from "../useAuth";
@@ -9,9 +9,12 @@ import useAuth from "../useAuth";
 const Login = () => {
     const auth = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
     const [error, setError] = useState();
+
+    const from = location.state?.from?.pathname;
 
     const handleSubmit = async (e) => {
         // TODO - validate form and proceed
@@ -26,7 +29,7 @@ const Login = () => {
                 password.trim()
             );
             await auth.signIn(res?.accesstoken, () => {
-                navigate("/home", {
+                navigate(from || "/home", {
                   replace: true,
                 });
             });

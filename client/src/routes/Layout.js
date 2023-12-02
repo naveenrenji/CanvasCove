@@ -36,6 +36,9 @@ const Layout = () => {
                 <Nav.Link as={Link} to="/explore">
                   Explore
                 </Nav.Link>
+                <Nav.Link as={Link} to="/art">
+                  Art
+                </Nav.Link>
                 <Nav.Link as={Link} to="/account">
                   Account
                 </Nav.Link>

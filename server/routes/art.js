@@ -54,7 +54,11 @@ artRouter.route("/:id").get(async (req, res) => {
     let cleanId = xss(id);
     cleanId = validateId(cleanId, "Art ID");
 
-    const { forUpdate } = req.query;
+    let { forUpdate } = req.query;
+
+    if (typeof forUpdate === "string") {
+      forUpdate = forUpdate.toLowerCase() === "true";
+    }
 
     const art = await artData.getArt(req.currentUser, id, forUpdate || false);
     return res.json({ art: await formatItemResponse(req, art, "Art") });

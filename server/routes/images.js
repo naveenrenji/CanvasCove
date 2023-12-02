@@ -84,4 +84,40 @@ imagesRouter
     }
   });
 
+imagesRouter
+  .route("/:imageableType/:imageableId/bulk-delete")
+  .delete(authenticateRequest, validateImageRoutes, async (req, res) => {
+    try {
+      if (!req.imageable) {
+        return res.status(400).send({
+          message: "Could not find the model to assign this image to.",
+        });
+      }
+
+      let { imageIds } = req.body;
+
+      const images = await Image.find({
+        _id: { $in: imageIds },
+        imageableType: req.imageable.imageableType,
+        imageableId: req.imageable.imageableId,
+      });
+
+      if (!images) {
+        return res.status(400).send({ message: "Could not find images" });
+      }
+
+      await ImageService.deleteImages({
+        images,
+        imageableType: req.imageable.imageableType,
+        imageableId: req.imageable.imageableId,
+      });
+
+      return res.status(200).send({
+        deleted: true,
+      });
+    } catch (error) {
+      return res.status(error?.status || 500).json({ error: error?.message });
+    }
+  });
+
 export default imagesRouter;

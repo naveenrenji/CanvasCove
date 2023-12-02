@@ -15,6 +15,7 @@ import {
   Art,
   CreateArt,
   EditArt,
+  ArtList,
 } from "../components";
 
 const Routes = () => {
@@ -48,7 +49,14 @@ const Routes = () => {
           }
         />
         <Route path="/art" element={<Outlet />}>
-          {/* <Route index element={<FindMyHomies />} /> */}
+          <Route
+            index
+            element={
+              <RequireAuth>
+                <ArtList />
+              </RequireAuth>
+            }
+          />
           <Route
             path=":id"
             element={

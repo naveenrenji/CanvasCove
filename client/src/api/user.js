@@ -6,3 +6,13 @@ export const updateFollowStatusApi = async (userId) => {
   );
   return response?.data?.user || {};
 };
+
+export const getLikedArt = async (userId) => {
+  const response = await httpInstance.get(`/users/${userId}/liked-art`);
+  return response?.data?.artList || [];
+};
+
+export const getArtList = async (userId) => {
+  const response = await httpInstance.get(`/users/${userId}/art`);
+  return response?.data?.artList || [];
+};

@@ -26,9 +26,13 @@ userRouter.route("/me").put(async (req, res) => {
   }
 });
 
-userRouter.route("/me/liked-art").get(async (req, res) => {
+userRouter.route("/:id/liked-art").get(async (req, res) => {
   try {
-    const artList = await userData.getMyLikedArt(req.currentUser);
+    const { id } = req.params;
+    let cleanId = xss(id);
+    cleanId = validateId(cleanId);
+
+    const artList = await userData.getUserLikedArt(req.currentUser, cleanId);
     return res.json({
       artList: await formatItemListResponse(req, artList, "Art"),
     });

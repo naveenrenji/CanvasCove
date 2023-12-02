@@ -4,7 +4,7 @@ import { useParams } from "react-router";
 
 import { artAPI } from "../api";
 import { INTERACTION_TYPES } from "../constants";
-import { ArtCard } from "./common";
+import { ArtCard, Loader } from "./common";
 
 const Art = () => {
   const { id } = useParams();
@@ -61,9 +61,7 @@ const Art = () => {
           </Alert>
         </Row>
       ) : loading ? (
-        <Row>
-          <Alert variant="info">Loading art...</Alert>
-        </Row>
+        <Loader />
       ) : !!art ? (
         <ArtCard
           art={art}

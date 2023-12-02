@@ -4,8 +4,10 @@ import { Link } from "react-router-dom";
 import { Button, Carousel, Dropdown, Stack } from "react-bootstrap";
 
 import { formatPrice } from "../../helpers";
-import { INTERACTION_TYPES } from "../../constants";
+import { INTERACTION_TYPES, USER_ROLES } from "../../constants";
 import { userApi } from "../../api";
+import { PlaceholderImage } from "../../assets";
+import useAuth from "../../useAuth";
 
 import IconButton from "./IconButton";
 import CommentsModal from "./CommentsModal";
@@ -25,6 +27,10 @@ const ThreeDotToggle = React.forwardRef(({ children, onClick }, ref) => (
 ));
 
 const ArtCard = ({ art, onArtChange, onLikeClick }) => {
+  const auth = useAuth();
+  const isArtist = auth?.user?.role === USER_ROLES.ARTIST;
+  const isOwner = isArtist && auth?.user?._id === art?.artist?._id;
+
   const [showComments, setShowComments] = React.useState(false);
   const [copyBtn, setCopyBtn] = React.useState({
     text: "Copy Link",
@@ -74,7 +80,7 @@ const ArtCard = ({ art, onArtChange, onLikeClick }) => {
   };
 
   return (
-    <Card style={{ maxWidth: "50vw" }}>
+    <Card style={{ width: "50vw" }}>
       <CommentsModal
         show={showComments}
         handleClose={onToggleShowComments}
@@ -121,22 +127,55 @@ const ArtCard = ({ art, onArtChange, onLikeClick }) => {
               />
               {isFollowedByCurrentUser ? "Unfollow" : "Follow"}
             </Dropdown.Item>
+            {isOwner ? (
+              <Dropdown.Item as={Link} to={`/art/${art._id}/edit`}>
+                <Icon
+                  color="black"
+                  icon="pencil-fill"
+                  style={{ marginRight: "0.5rem" }}
+                />
+                Edit
+              </Dropdown.Item>
+            ) : null}
           </Dropdown.Menu>
         </Dropdown>
       </Card.Header>
-      <Carousel interval={3000}>
-        {/* TODO: Update this to art images */}
+      <Carousel
+        interval={5000}
+        style={{ padding: "0.5rem" }}
+        data-bs-theme="dark"
+      >
         {(art.images.length
           ? art.images
           : [
               {
-                url: "https://cdn.britannica.com/78/43678-050-F4DC8D93/Starry-Night-canvas-Vincent-van-Gogh-New-1889.jpg",
-                name: "Starry Night",
+                url: PlaceholderImage,
+                name: "Image Placeholder",
               },
             ]
         ).map((image, index) => (
-          <Carousel.Item key={index}>
-            <img className="d-block w-100" src={image.url} alt={image.name} />
+          <Carousel.Item
+            key={index}
+            style={{
+              height: "40vh",
+              textAlign: "center",
+              overflow: "hidden",
+              // display: "flex",
+              // justifyContent: "center",
+              // alignItems: "center",
+            }}
+          >
+            <img
+              className="d-block"
+              src={image.url}
+              alt={image.name}
+              style={{
+                objectFit: "cover",
+                margin: "auto",
+                maxHeight: "100%",
+                maxWidth: "100%",
+              }}
+            />
           </Carousel.Item>
         ))}
       </Carousel>
