@@ -65,3 +65,9 @@ export const deleteImagesApi = async (artId, imageIds) => {
 
   return res.data;
 };
+
+// Search art api with provided search term using POST method
+export const searchApi = async (keyword) => {
+  const response = await httpInstance.post(`/art/search`, { keyword });
+  return response?.data?.artList || [];
+};

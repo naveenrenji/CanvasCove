@@ -16,6 +16,7 @@ import {
   CreateArt,
   EditArt,
   ArtList,
+  Explore,
 } from "../components";
 
 const Routes = () => {
@@ -83,6 +84,14 @@ const Routes = () => {
           />
           <Route path="*" element={<NotFound />} />
         </Route>
+        <Route
+          path="/explore"
+          element={
+            <RequireAuth>
+              <Explore />
+            </RequireAuth>
+          }
+        />
 
         <Route path="*" element={<NotFound />} />
       </Route>
