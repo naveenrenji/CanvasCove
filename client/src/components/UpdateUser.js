@@ -23,7 +23,7 @@ const UpdateUser = () => {
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState(""); // Separate state for form-wide errors
   const navigate = useNavigate();
-  const { currentUser } = useAuth(); // Assuming useAuth provides currentUser
+  const { user: currentUser, refreshCurrentUser } = useAuth(); // Assuming useAuth provides currentUser
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,8 +59,9 @@ const UpdateUser = () => {
     }
     try {
       await updateUserApi(currentUser._id, formData);
+      await refreshCurrentUser();
       alert("Updated Successfully");
-      navigate("/profile"); // Redirect to profile or another page
+      navigate("/account");
     } catch (error) {
       setFormError(
         error.message || "An error occurred while updating the profile."
