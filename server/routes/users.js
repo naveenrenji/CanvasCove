@@ -2,6 +2,7 @@ import { Router } from "express";
 import { userData } from "../data/index.js";
 import { formatItemListResponse, formatItemResponse } from "../utils.js";
 import { validateId, validateString, validateRole } from "../validators/helpers.js";
+
 import xss from "xss";
 
 const userRouter = Router();
@@ -102,6 +103,22 @@ userRouter.route("/:id/update-follow-status").put(async (req, res) => {
     return res.json({ user: await formatItemResponse(req, user, "User") });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
+  }
+});
+
+userRouter.route("/users/:userId/update").put( async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const currentUser = await getLoggedInUser(req.user.email); // Assuming this retrieves the logged-in user
+
+    if (currentUser._id.toString() !== userId) {
+      return res.status(403).json({ message: "Unauthorized access" });
+    }
+
+    const updatedUser = await updateCurrentUser(currentUser, req.body);
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(error.status || 500).json({ message: error.message });
   }
 });
 
