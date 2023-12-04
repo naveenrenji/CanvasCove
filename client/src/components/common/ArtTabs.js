@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { ArtCardPlaceholder, OverlayArtCard } from "./index";
 
 const ArtTabs = ({ user }) => {
+  console.log(user);
   const auth = useAuth();
   const isCurrentUser = auth?.user?._id === user._id;
   const isCurrentUserArtist = auth?.user?.role === USER_ROLES.ARTIST;
@@ -25,22 +26,20 @@ const ArtTabs = ({ user }) => {
   };
 
   React.useEffect(() => {
-    if (user?._id) {
-      (async () => {
-        try {
-          setLoading(true);
-          const list =
-            currentTab === "created-art"
-              ? await userApi.getArtList(user._id)
-              : await userApi.getLikedArt(user._id);
-          setArtList(list);
-          setLoading(false);
-        } catch (err) {
-          setError(err?.response?.data?.error || err?.message);
-          setLoading(false);
-        }
-      })();
-    }
+    (async () => {
+      try {
+        setLoading(true);
+        const list =
+          currentTab === "created-art"
+            ? await userApi.getArtList(user?._id)
+            : await userApi.getLikedArt(user?._id);
+        setArtList(list);
+        setLoading(false);
+      } catch (err) {
+        setError(err?.response?.data?.error || err?.message);
+        setLoading(false);
+      }
+    })();
   }, [currentTab, user?._id]);
 
   const handleLikeClick = async (art) => {

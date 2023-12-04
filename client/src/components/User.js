@@ -7,7 +7,7 @@ import { Loader } from "./common";
 
 const User = () => {
   const { id } = useParams();
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   // UseEffect to fetch user data
