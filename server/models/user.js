@@ -146,6 +146,16 @@ const UserSchema = new Schema(
             },
           },
           {
+            $addFields: {
+              followersCount: {
+                $size: "$followers",
+              },
+              followingCount: {
+                $size: "$following",
+              },
+            },
+          },
+          {
             $project: {
               _id: 1,
               firstName: 1,
@@ -157,6 +167,8 @@ const UserSchema = new Schema(
               images: 1,
               gender: 1,
               role: 1,
+              followersCount: 1,
+              followingCount: 1,
             },
           },
         ]);
@@ -192,6 +204,12 @@ const UserSchema = new Schema(
           },
           {
             $addFields: {
+              followersCount: {
+                $size: "$followers",
+              },
+              followingCount: {
+                $size: "$following",
+              },
               isFollowedByCurrentUser: {
                 $and: [
                   {
@@ -230,6 +248,9 @@ const UserSchema = new Schema(
               lastName: 1,
               displayName: 1,
               images: 1,
+              bio: 1,
+              followersCount: 1,
+              followingCount: 1,
               isFollowedByCurrentUser: 1,
               isFollowingCurrentUser: 1,
             },
