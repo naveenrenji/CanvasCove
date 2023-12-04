@@ -22,3 +22,9 @@ export const searchApi = async (payload) => {
   const response = await httpInstance.post(`/users/search`, payload);
   return response?.data?.users || [];
 };
+
+
+export const updateUserApi = async (userId, updateData) => {
+  const response = await httpInstance.put(`/users/${userId}/update`, updateData);
+  return response.data;
+};
