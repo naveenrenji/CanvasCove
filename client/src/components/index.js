@@ -12,3 +12,4 @@ export { default as ArtList } from "./ArtList";
 export { default as Explore } from "./Explore";
 export { default as UpdateUser} from "./UpdateUser";
 export { default as UserProfile } from "./common/UserProfile";
+export { default as Account } from "./Account";
