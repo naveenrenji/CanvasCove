@@ -73,41 +73,38 @@ export const getUserLikedArt = async (currentUser, userId) => {
   return artList;
 };
 
+
+const validateCurrentPassword = async (userId, currentPassword) => {
+  const user = await User.findById(userId);
+  return user.verifyPassword(currentPassword);
+};
+
+
 export const updateCurrentUser = async (currentUser, body) => {
   try {
-    const { gender, firstName, lastName, dob, bio } = body;
+    const { gender, firstName, lastName, bio, currentPassword, newPassword } = body;
+    let encryptedPassword;
 
-    let cleanGender = xss(gender);
-    cleanGender = validateGender(cleanGender);
+    if (currentPassword && newPassword) {
+      const isCurrentPasswordValid = await currentUser.verifyPassword(currentPassword);
+      if (!isCurrentPasswordValid) {
+        throw { status: 400, message: "Current password is incorrect" };
+      }
+      encryptedPassword = await new PasswordService(newPassword).encrypt();
+    }
 
-    let cleanFirstName = xss(firstName);
-    cleanFirstName = validateString(cleanFirstName, "firstName", {
-      maxLength: 50,
-    });
+    const fieldsToUpdate = {};
+    if (gender) fieldsToUpdate.gender = xss(validateGender(gender));
+    if (firstName) fieldsToUpdate.firstName = xss(validateString(firstName, "firstName", { maxLength: 50 }));
+    if (lastName) fieldsToUpdate.lastName = xss(validateString(lastName, "lastName", { maxLength: 50 }));
+    if (bio) fieldsToUpdate.bio = xss(validateString(bio, "bio", { maxLength: 200 }));
+    if (encryptedPassword) fieldsToUpdate.encryptedPassword = encryptedPassword;
 
-    let cleanLastName = xss(lastName);
-    cleanLastName = validateString(cleanLastName, "lastName", {
-      maxLength: 50,
-    });
+    await User.updateOne({ _id: currentUser._id }, { $set: fieldsToUpdate });
 
-    let cleanBio = xss(bio);
-    cleanBio = validateString(cleanBio, "bio", { maxLength: 200 });
-
-    let cleanDob = xss(dob);
-    cleanDob = validateDOB(cleanDob, "dob");
-
-    const fieldsToUpdate = {
-      firstName: cleanFirstName,
-      lastName: cleanLastName,
-      bio: cleanBio,
-      dob: cleanDob,
-      gender: cleanGender,
-    };
-
-    // Call mongoose update function and pass in the fields to update
-    await User.updateOne({ _id: currentUser._id }, fieldsToUpdate);
-
-    return getUser(updatedUser, updatedUser._id);
+    // Fetch and return the updated user details
+    const updatedUser = await User.findById(currentUser._id).select('-encryptedPassword');
+    return updatedUser;
   } catch (error) {
     throw {
       status: error.status || 500,
@@ -115,6 +112,7 @@ export const updateCurrentUser = async (currentUser, body) => {
     };
   }
 };
+
 
 export const searchUsers = async (currentUser, { keyword, role }) => {
   try {
