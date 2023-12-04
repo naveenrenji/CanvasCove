@@ -192,6 +192,12 @@ const UserSchema = new Schema(
           },
           {
             $addFields: {
+              followersCount: {
+                $size: "$followers",
+              },
+              followingCount: {
+                $size: "$following",
+              },
               isFollowedByCurrentUser: {
                 $and: [
                   {
@@ -230,6 +236,9 @@ const UserSchema = new Schema(
               lastName: 1,
               displayName: 1,
               images: 1,
+              bio: 1,
+              followersCount: 1,
+              followingCount: 1,
               isFollowedByCurrentUser: 1,
               isFollowingCurrentUser: 1,
             },
