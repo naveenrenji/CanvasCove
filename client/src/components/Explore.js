@@ -1,26 +1,63 @@
 import React, { useState, useEffect } from "react";
-import { Nav, Alert, Container } from "react-bootstrap";
+import { 
+    Nav,
+    Row,
+    Col,
+    Card,
+    Alert,
+    Tooltip,
+    Container,
+    OverlayTrigger,
+} from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+
 import { Loader } from "./common";
 import SearchBar from "./common/SearchBar";
 import { userApi, artAPI } from "../api";
+import { USER_ROLES } from "../constants";
 
 const Explore = () => {
-    const [error, setError] = useState();
+    const navigate = useNavigate();
+    const [error, setError] = useState("");
     const [list, setList] = useState([]);
+    const [allArtists, setAllArtists] = useState([]);
     const [entity, setEntity] = useState("art");
     const [loading, setLoading] = useState(false);
-    const [searchTerm, setSearchTerm] = useState();
+    const [searchTerm, setSearchTerm] = useState("");
     const [currentTab, setCurrentTab] = useState("search-art");
 
-    // Write useEffect hook to set entity on switchTab
+
+    // useEffect hook to set entity on switchTab
     useEffect(() => {
+        setSearchTerm("");
         if (currentTab === "search-art") {
             setEntity("art");
         } else {
             setEntity("artist");
         }
+        // Load all artist by default if currentTab is "search-artist"
+        if (currentTab === "search-artist") {
+            if (allArtists.length) {
+                setList(allArtists);
+            } else {
+                setLoading(true);
+                (async () => {
+                    try {
+                        const list = await userApi.searchApi({role: USER_ROLES.ARTIST});
+                        setList(list);
+                        setAllArtists(list);
+                        setLoading(false);
+                    } catch (err) {
+                        setError(err?.response?.data?.error || err?.message);
+                        setLoading(false);
+                    }
+                })();
+            }
+        } else {
+            setList([]);
+        }
     }
-    , [currentTab]);
+    , [currentTab, allArtists]);
 
     const handleSearch = (searchTerm) => {
         console.log('Searching for:', searchTerm);
@@ -31,7 +68,7 @@ const Explore = () => {
                 try {
                     const list = 
                         currentTab === "search-artist"
-                        ? await userApi.searchApi(searchTerm)
+                        ? await userApi.searchApi({keyword: searchTerm, role: USER_ROLES.ARTIST})
                         : await artAPI.searchApi(searchTerm);
                     setList(list);
                     setLoading(false);
@@ -40,6 +77,13 @@ const Explore = () => {
                     setLoading(false);
                 }
             })();
+        }
+        if (!searchTerm.length) {
+            if (currentTab === "search-artist") {
+                setList(allArtists);
+            } else {
+                setList([]);
+            }
         }
     };
 
@@ -73,7 +117,59 @@ const Explore = () => {
                         <p>{error}</p>
                     ) : (
                         list.length > 0 ? (
-                            <p>List</p>
+                        <Row>
+                            {list?.map((_entity) => (
+                              <Col key={_entity._id} xs={12} md={6} lg={4} className="mb-4">
+                                {
+                                    currentTab === "search-art" ? (
+                                    <OverlayTrigger
+                                        placement="bottom"
+                                        overlay={
+                                          <Tooltip id={`art-${_entity._id}`}>
+                                            {_entity.title}, By <strong>{_entity?.artist?.displayName}</strong>
+                                          </Tooltip>
+                                        }
+                                      >
+                                        <Card
+                                          onClick={() => {
+                                            navigate(`/art/${_entity?._id}`);
+                                          }}
+                                          style={{ cursor: "pointer" }}
+                                        >
+                                          <Card.Body>
+                                            <Card.Img src={_entity?.images?.[0]?.url} alt={_entity?.title} />
+                                          </Card.Body>
+                                        </Card>
+                                      </OverlayTrigger>
+                                    ) : (
+                                        <OverlayTrigger
+                                            placement="bottom"
+                                            overlay={
+                                              <Tooltip id={`artist-${_entity._id}`}>
+                                                View more about {_entity?.firstName} {_entity?.lastName}
+                                              </Tooltip>
+                                            }
+                                        >
+                                            <Card
+                                                onClick={() => {
+                                                    navigate(`/art/${_entity?._id}`);
+                                                }}
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                <Card.Body>
+                                                    {/* Show displayName, firstName, and LastName */}
+                                                    <Card.Title>{_entity.displayName}</Card.Title>
+                                                    <Card.Text>
+                                                        {_entity?.firstName} {_entity?.lastName}
+                                                    </Card.Text>
+                                                </Card.Body>
+                                            </Card>
+                                        </OverlayTrigger>
+                                    )
+                                }
+                              </Col>
+                            ))}
+                          </Row>
                         ) : (
                             <Alert variant="light">
                             <Alert.Heading>{searchTerm ? "Art not found!" : "No search term!"}</Alert.Heading>

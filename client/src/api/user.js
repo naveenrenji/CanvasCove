@@ -18,7 +18,7 @@ export const getArtList = async (userId) => {
 };
 
 // Search user with provided search term
-export const searchApi = async (keyword) => {
-  const response = await httpInstance.post(`/users/search`, { keyword });
+export const searchApi = async (payload) => {
+  const response = await httpInstance.post(`/users/search`, payload);
   return response?.data?.users || [];
 };

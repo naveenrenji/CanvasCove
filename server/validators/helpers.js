@@ -95,7 +95,7 @@ const checkBoolean = (value) => {
   return false;
 };
 
-const validateString = (value, name, { minLength = 1, maxLength } = {}) => {
+const validateString = (value, name = 'String', { minLength = 1, maxLength } = {}) => {
   if (!value) {
     throw { status: 400, message: `${name} is required!` };
   }
@@ -259,7 +259,7 @@ const validateGender = (value, name = "Selection") => {
   return value;
 };
 
-const validateRole = (value, name = "Selection") => {
+const validateRole = (value, name = "Entity") => {
   if (!value) {
     throw {
       status: 400,

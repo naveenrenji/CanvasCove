@@ -116,18 +116,79 @@ export const updateCurrentUser = async (currentUser, body) => {
   }
 };
 
-export const searchUsers = async (currentUser, { keyword }) => {
+export const searchUsers = async (currentUser, { keyword, role }) => {
+  try {
+    // const users = await User.fetch(
+    //   currentUser,
+    //   [
+    //     {
+    //       $match: {
+    //         $or: [
+    //           { firstName: { $regex: keyword, $options: "i" } },
+    //           { lastName: { $regex: keyword, $options: "i" } },
+    //           { displayName: { $regex: keyword, $options: "i" } },
+    //         ],
+    //       },
+    //     },
+    //   ],
+    //   { page: 1, limit: 10 }
+    // );
+    // Get users by role and keyword if provided. Else return all users
+    // const users = await User.fetch(
+    //   currentUser,
+    //   [
+    //     {
+    //       $match: {
+    //         ...(role ? { role } : {}),
+    //         $or: [
+    //           { firstName: { $regex: keyword, $options: "i" } },
+    //           { lastName: { $regex: keyword, $options: "i" } },
+    //           { displayName: { $regex: keyword, $options: "i" } },
+    //         ],
+    //       },
+    //     },
+    //   ],
+    //   { page: 1, limit: 10 }
+    // );
+    // Get users. Role and keyword are optional. If not provided, return all users
+    const users = await User.fetch(
+      currentUser,
+      [
+        {
+          $match: {
+            ...(role ? { role } : {}),
+            ...(typeof keyword === 'string' && keyword
+              ? {
+                  $or: [
+                    { firstName: { $regex: keyword, $options: "i" } },
+                    { lastName: { $regex: keyword, $options: "i" } },
+                    { displayName: { $regex: keyword, $options: "i" } },
+                  ],
+                }
+              : {}),
+          },
+        },
+      ],
+      { page: 1, limit: 10 }
+    );
+    return users;
+  } catch (error) {
+    throw {
+      status: error.status || 500,
+      message: error.message || "Internal Server Error",
+    };
+  }
+};
+
+// Method to getUsers - return all if userType not mentioned
+export const getUsers = async (currentUser, { role }) => {
   try {
     const users = await User.fetch(
       currentUser,
       [
         {
           $match: {
-            $or: [
-              { firstName: { $regex: keyword, $options: "i" } },
-              { lastName: { $regex: keyword, $options: "i" } },
-              { displayName: { $regex: keyword, $options: "i" } },
-            ],
+            ...(role ? { role } : {}),
           },
         },
       ],

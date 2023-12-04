@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { userData } from "../data/index.js";
 import { formatItemListResponse, formatItemResponse } from "../utils.js";
-import { validateId, validateString } from "../validators/helpers.js";
+import { validateId, validateString, validateRole } from "../validators/helpers.js";
 import xss from "xss";
 
 const userRouter = Router();
@@ -43,14 +43,19 @@ userRouter.route("/:id/liked-art").get(async (req, res) => {
 
 userRouter.route("/search").post(async (req, res) => {
   try {
-    const { keyword } = req.body;
+    const { keyword, role } = req.body;
     let cleanKeyword = xss(keyword);
+    let cleanRole = xss(role);
 
-    cleanKeyword = validateString(cleanKeyword);
+    const payload = {}
+    if (cleanKeyword) {
+      payload.keyword = validateString(cleanKeyword)
+    }
+    if (cleanRole) {
+      payload.role = validateRole(cleanRole)
+    }
 
-    const users = await userData.searchUsers(req.currentUser, {
-      keyword: cleanKeyword,
-    });
+    const users = await userData.searchUsers(req.currentUser, payload);
     return res.json({
       users: await formatItemListResponse(req, users, "User"),
     });
