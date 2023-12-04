@@ -18,6 +18,7 @@ import {
   NotFound,
   CreateArt,
   UserProfile,
+  Account,
   UpdateUser,
 } from "../components";
 
@@ -111,6 +112,25 @@ const Routes = () => {
             </RequireAuth>
           }
         />
+        <Route path="/account" element={<Outlet />}>
+          <Route
+            index
+            element={
+              <RequireAuth>
+                <Account />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="edit"
+            element={
+              <RequireAuth>
+                <UpdateUser />
+              </RequireAuth>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
+        </Route>
 
         <Route path="*" element={<NotFound />} />
       </Route>
