@@ -18,6 +18,7 @@ import {
   NotFound,
   CreateArt,
   UserProfile,
+  UpdateUser,
 } from "../components";
 
 const Routes = () => {
@@ -26,6 +27,12 @@ const Routes = () => {
       <Route element={<Layout />}>
         <Route index element={<Redirector />} />
         <Route path="/welcome" element={<Welcome />} />
+        <Route
+          path="/update-profile"
+          element={
+              <UpdateUser />
+          }
+        />
         <Route
           path="/login"
           element={
@@ -60,7 +67,7 @@ const Routes = () => {
             }
           />
         </Route>
-      
+
         <Route path="/art" element={<Outlet />}>
           <Route
             index

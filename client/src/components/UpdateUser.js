@@ -4,6 +4,7 @@ import { Form, Button, Card, Alert } from 'react-bootstrap';
 import { GENDERS } from "../constants";
 import { updateUserApi } from "../api/user"; // Your API call
 import useAuth from "../useAuth"; // Your auth hook
+import { validateName, validatePassword, validateConfirmPassword } from "../helpers"; // Import validation functions
 
 const UpdateUser = () => {
     const [formData, setFormData] = useState({
@@ -13,116 +14,83 @@ const UpdateUser = () => {
         gender: '',
         currentPassword: '',
         newPassword: '',
-        confirmNewPassword: '' // Used for frontend validation only
+        confirmNewPassword: ''
     });
-    const [error, setError] = useState('');
+    const [errors, setErrors] = useState({});
+    const [formError, setFormError] = useState(''); // Separate state for form-wide errors
     const navigate = useNavigate();
     const { currentUser } = useAuth(); // Assuming useAuth provides currentUser
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+        // Validate the field on change
+        let error = '';
+        switch (name) {
+            case 'firstName':
+            case 'lastName':
+                error = validateName(name, value);
+                break;
+            case 'newPassword':
+                error = validatePassword(value);
+                break;
+            case 'confirmNewPassword':
+                error = validateConfirmPassword(value, formData.newPassword);
+                break;
+            default:
+                break;
+        }
+        setErrors({ ...errors, [name]: error });
     };
 
     const isFormValid = () => {
-        // Add your validation logic here
-        return true; // Replace with actual validation
+        return Object.values(errors).every(error => error === "");
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isFormValid()) {
-            setError("Please fill out all fields correctly.");
+            setFormError("Please fill out all fields correctly."); // Update form-wide error
             return;
         }
         try {
-            const updatedUser = await updateUserApi(currentUser._id, formData);
-            // Handle success (e.g., show a message, redirect, etc.)
-            navigate('/profile'); // Redirect to profile page or wherever appropriate
+            await updateUserApi(currentUser._id, formData);
+            alert('Updated Successfully');
+            navigate('/profile'); // Redirect to profile or another page
         } catch (error) {
-            setError(error.message || "An error occurred while updating the profile.");
+            setFormError(error.message || "An error occurred while updating the profile."); // Update form-wide error
         }
     };
 
     return (
         <Card className="update-form">
             <h2 className="update-header">Update Profile</h2>
-            <Form
-                onChange={() => setError()}
-            >
-                {/* Similar form group structure as in Signup for firstName, lastName, and bio */}
+            <Form onSubmit={handleSubmit}>
+                {/* Form fields for firstName, lastName, bio, gender */}
                 {/* ... */}
-
-                <Form.Group className="mb-3 form-group" controlId="formGenderSelect">
-                    <Form.Label>Gender</Form.Label>
+                {/* Example: Field for firstName */}
+                <Form.Group className="mb-3 form-group" controlId="formFirstName">
+                    <Form.Label>First Name</Form.Label>
                     <Form.Control
-                        as="select"
-                        value={gender.value}
+                        type="text"
+                        name="firstName"
+                        placeholder="First Name"
+                        value={formData.firstName}
                         onChange={handleChange}
-                        isInvalid={!!gender.error}
-                    >
-                        <option value="">Select gender...</option>
-                        {Object.values(GENDERS).map((gender) => (
-                            <option value={gender} key={gender}>
-                                {gender}
-                            </option>
-                        ))}
-                    </Form.Control>
-                    <Form.Control.Feedback type="invalid">
-                        {gender.error}
-                    </Form.Control.Feedback>
-                </Form.Group>
-
-                {/* Fields for current password, new password, and confirm new password */}
-                <Form.Group className="mb-3 form-group" controlId="formCurrentPassword">
-                    <Form.Label>Current Password</Form.Label>
-                    <Form.Control
-                        type="password"
-                        placeholder="Current Password"
-                        value={currentPassword.value}
-                        onChange={handleChange}
-                        isInvalid={!!currentPassword.error}
+                        isInvalid={!!errors.firstName}
                     />
                     <Form.Control.Feedback type="invalid">
-                        {currentPassword.error}
+                        {errors.firstName}
                     </Form.Control.Feedback>
                 </Form.Group>
 
-                <Form.Group className="mb-3 form-group" controlId="formNewPassword">
-                    <Form.Label>New Password</Form.Label>
-                    <Form.Control
-                        type="password"
-                        placeholder="New Password"
-                        value={newPassword.value}
-                        onChange={handleChange}
-                        isInvalid={!!newPassword.error}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                        {newPassword.error}
-                    </Form.Control.Feedback>
-                </Form.Group>
-
-                <Form.Group className="mb-3 form-group" controlId="formConfirmNewPassword">
-                    <Form.Label>Confirm New Password</Form.Label>
-                    <Form.Control
-                        type="password"
-                        placeholder="Confirm New Password"
-                        value={confirmNewPassword.value}
-                        onChange={handleChange}
-                        isInvalid={!!confirmNewPassword.error}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                        {confirmNewPassword.error}
-                    </Form.Control.Feedback>
-                </Form.Group>
-
-                {/* Error Alert */}
-                {error && <Alert variant="danger">{error}</Alert>}
+                {/* Repeat similar structure for lastName, bio, and other fields */}
+                {/* ... */}
 
                 <Button
                     type="submit"
                     variant="primary"
-                    disabled={isFormInvalid()}
-                    onClick={handleSubmit}
+                    disabled={!isFormValid()}
                     style={{ width: '100%' }}
                 >
                     Update Profile
