@@ -1,8 +1,16 @@
 import React from "react";
-import { UserProfile } from "./common";
+import { ArtTabs, UserProfile } from "./common";
+import { Container } from "react-bootstrap";
 
 const User = () => {
-  return <UserProfile user={{}} />;
+  return (
+    <Container fluid="md">
+      <UserProfile user={{}} />
+      <Container>
+        <ArtTabs user={{}} />
+      </Container>
+    </Container>
+  );
 };
 
 export default User;

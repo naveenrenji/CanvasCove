@@ -9,3 +9,4 @@ export { default as ArtForm } from "./ArtForm.js";
 export { default as OverlayArtCard } from "./OverlayArtCard.js";
 export { default as UserItem } from "./UserItem.js";
 export { default as UserProfile } from "./UserProfile.js";
+export { default as ArtTabs } from "./ArtTabs.js";
