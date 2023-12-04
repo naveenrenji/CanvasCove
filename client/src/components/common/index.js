@@ -7,3 +7,5 @@ export { default as Icon } from "./Icon.js";
 export { default as ButtonWithIcon } from "./ButtonWithIcon.js";
 export { default as ArtForm } from "./ArtForm.js";
 export { default as OverlayArtCard } from "./OverlayArtCard.js";
+export { default as UserItem } from "./UserItem.js";
+export { default as UserProfile } from "./UserProfile.js";

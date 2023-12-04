@@ -29,8 +29,7 @@ const Home = () => {
 
   const [onFireArt, setOnFireArt] = React.useState([]);
   const [onFireArtError, setOnFireArtError] = React.useState(null);
-  const [onFireArtLoading, setOnFireArtLoading] =
-    React.useState(true);
+  const [onFireArtLoading, setOnFireArtLoading] = React.useState(true);
   const [onFireArtPage, setOnFireArtPage] = React.useState(1);
 
   const getFeed = React.useCallback(async () => {
@@ -122,10 +121,8 @@ const Home = () => {
     });
   };
 
-  const handleOnFireArtNextClick = () =>
-    onOnFireArtPageChange(page + 1);
-  const handleOnFireArtPrevClick = () =>
-    onOnFireArtPageChange(page - 1);
+  const handleOnFireArtNextClick = () => onOnFireArtPageChange(page + 1);
+  const handleOnFireArtPrevClick = () => onOnFireArtPageChange(page - 1);
   const onOnFireArtPageChange = async (newPage) => {
     setOnFireArtPage(newPage);
   };
@@ -179,7 +176,7 @@ const Home = () => {
               style={{ color: "white" }}
             />
             {loading ? (
-              <ArtCardPlaceholder />
+              <ArtCardPlaceholder fullPage />
             ) : feed.length ? (
               feed.map((art, idx) => (
                 <OverlayArtCard
@@ -253,9 +250,7 @@ const Home = () => {
             <IconButton
               icon="arrow-left"
               onClick={handleOnFireArtPrevClick}
-              disabled={
-                loading || onFireArtLoading || onFireArtPage === 1
-              }
+              disabled={loading || onFireArtLoading || onFireArtPage === 1}
               title="Previous Page"
               className="bg-primary p-3"
               style={{ color: "white" }}
@@ -281,9 +276,7 @@ const Home = () => {
             <IconButton
               icon="arrow-right"
               onClick={handleOnFireArtNextClick}
-              disabled={
-                loading || onFireArtLoading || !onFireArt.length
-              }
+              disabled={loading || onFireArtLoading || !onFireArt.length}
               title="Next Page"
               className="bg-primary p-3"
               style={{ color: "white" }}

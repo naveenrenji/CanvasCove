@@ -11,11 +11,12 @@ import {
 } from "../helpers"; // Import validation functions
 
 const UpdateUser = () => {
+  const auth = useAuth();
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    bio: "",
-    gender: "",
+    firstName: auth?.user?.firstName || "",
+    lastName: auth?.user?.lastName || "",
+    bio: auth?.user?.bio || "",
+    gender: auth?.user?.gender || "",
     currentPassword: "",
     newPassword: "",
     confirmNewPassword: "",
@@ -23,7 +24,6 @@ const UpdateUser = () => {
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState(""); // Separate state for form-wide errors
   const navigate = useNavigate();
-  const { currentUser } = useAuth(); // Assuming useAuth provides currentUser
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,9 +58,10 @@ const UpdateUser = () => {
       return;
     }
     try {
-      await updateUserApi(currentUser._id, formData);
+      await updateUserApi(auth?.user?._id, formData);
+      await auth.refreshCurrentUser();
       alert("Updated Successfully");
-      navigate("/profile"); // Redirect to profile or another page
+      navigate("/account"); // Redirect to profile or another page
     } catch (error) {
       setFormError(
         error.message || "An error occurred while updating the profile."
@@ -72,6 +73,24 @@ const UpdateUser = () => {
     <Card className="update-form">
       <h2 className="update-header">Update Profile</h2>
       <Form onSubmit={handleSubmit}>
+        <Form.Group className="mb-3 form-group" controlId="formBasicUsername">
+          <Form.Label>Display Name</Form.Label>
+          <Form.Control
+            type="text"
+            value={auth?.user?.displayName}
+            readOnly
+            plaintext
+          />
+        </Form.Group>
+        <Form.Group className="mb-3 form-group" controlId="formBasicEmail">
+          <Form.Label>Email</Form.Label>
+          <Form.Control
+            type="text"
+            value={auth?.user?.email}
+            readOnly
+            plaintext
+          />
+        </Form.Group>
         <Form.Group className="mb-3 form-group" controlId="formFirstName">
           <Form.Label>First Name</Form.Label>
           <Form.Control

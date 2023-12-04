@@ -1,18 +1,26 @@
 import React from 'react';
 import { Button, Card, Container, Row, Col, Image } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
-const UserProfile = ({ user }) => {
+import useAuth from '../../useAuth';
+import { userApi } from '../../api';
+
+const UserProfile = ({ user, onUserChange }) => {
     // Artist mock data
-    const artist = {
-        id: 1,
-        firstName: "John",
-        lastName: "Doe",
-        displayName: "John Doe",
-        dateOfBirth: "1990-01-01",
-        followersCount: 100,
-        profilePicture: "https://source.unsplash.com/featured/?portrait,colorful",
-        bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla euismod, nisl eget ultricies aliquam, quam libero ultricies nunc, vitae ultricies nisl",
-    };
+    // const artist = {
+    //     id: 1,
+    //     firstName: "John",
+    //     lastName: "Doe",
+    //     displayName: "John Doe",
+    //     dateOfBirth: "1990-01-01",
+    //     followersCount: 100,
+    //     profilePicture: "https://source.unsplash.com/featured/?portrait,colorful",
+    //     bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla euismod, nisl eget ultricies aliquam, quam libero ultricies nunc, vitae ultricies nisl",
+    // };
+
+    
+    const auth = useAuth();
+    const isCurrentUser = auth?.user?._id === user._id;
 
     // const sectionStyle = {
     //     padding: '20px',
@@ -88,6 +96,17 @@ const UserProfile = ({ user }) => {
     //     </div>
     // );
 
+    const changeFollowStatus = async () => {
+        try {
+            const updatedArtist = await userApi.updateFollowStatusApi(
+                user?._id
+            );
+            onUserChange && onUserChange({ ...user, ...updatedArtist });
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     // STYLE 1
     return (
         <Container className="mt-5">
@@ -95,15 +114,19 @@ const UserProfile = ({ user }) => {
                 <Card.Body>
                     <Row>
                         <Col md={4} className="text-center">
-                        <Image src={artist.profilePicture} alt={artist.displayName} roundedCircle fluid style={{ width: '250px', height: '250px', objectFit: 'cover' }} />
+                        <Image src={user.profilePicture} alt={user.displayName} roundedCircle fluid style={{ width: '250px', height: '250px', objectFit: 'cover' }} />
                         </Col>
                         <Col md={8}>
-                            <h2>{artist.displayName}</h2>
-                            <p><strong>Name:</strong> {artist.firstName} {artist.lastName}</p>
-                            <p><strong>Date of Birth:</strong> {artist.dateOfBirth}</p>
-                            <p><strong>Followers:</strong> {artist.followersCount}</p>
-                            <p>{artist.bio}</p>
-                            <Button variant="primary">Follow</Button>
+                            <h2>{user.displayName}</h2>
+                            <p><strong>Name:</strong> {user.firstName} {user.lastName}</p>
+                            <p><strong>Date of Birth:</strong> {user.dateOfBirth}</p>
+                            <p><strong>Followers:</strong> {user.followersCount}</p>
+                            <p>{user.bio}</p>
+                            {isCurrentUser ? (
+                                <Button variant="primary" as={Link} to="/account/edit">Edit</Button>
+                            ) : (
+                                <Button variant="primary" onClick={changeFollowStatus}>{user.isFollowedByCurrentUser ? "Unfollow" : "+ Follow" }</Button>
+                            )}
                         </Col>
                     </Row>
                 </Card.Body>

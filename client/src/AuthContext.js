@@ -7,6 +7,7 @@ const AuthContext = createContext({
   signOut: () => {},
   isLoggedIn: false,
   getCurrentUser: () => ({}),
+  refreshCurrentUser: () => {},
   // TODO: Add more context as and when required
 });
 

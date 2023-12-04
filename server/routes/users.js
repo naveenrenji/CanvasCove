@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { userData } from "../data/index.js";
 import { formatItemListResponse, formatItemResponse } from "../utils.js";
-import { validateId, validateString, validateRole } from "../validators/helpers.js";
+import {
+  validateId,
+  validateString,
+  validateRole,
+} from "../validators/helpers.js";
 
 import xss from "xss";
 
@@ -18,10 +22,40 @@ userRouter.route("/me").get(async (req, res) => {
   }
 });
 
-userRouter.route("/me").put(async (req, res) => {
+// userRouter.route("/me").put(async (req, res) => {
+//   try {
+//     const user = await userData.updateCurrentUser(req.currentUser, req.body);
+//     return res.json({ user: await formatItemResponse(req, user) });
+//   } catch (error) {
+//     return res.status(error?.status || 500).json({ error: error?.message });
+//   }
+// });
+
+userRouter.route("/:id/following").get(async (req, res) => {
   try {
-    const user = await userData.updateCurrentUser(req.currentUser, req.body);
-    return res.json({ user: await formatItemResponse(req, user) });
+    const { id } = req.params;
+    let cleanId = xss(id);
+    cleanId = validateId(cleanId);
+
+    const users = await userData.getFollowingUsers(req.currentUser, cleanId);
+    return res.json({
+      following: await formatItemListResponse(req, users),
+    });
+  } catch (error) {
+    return res.status(error?.status || 500).json({ error: error?.message });
+  }
+});
+
+userRouter.route("/:id/followers").get(async (req, res) => {
+  try {
+    const { id } = req.params;
+    let cleanId = xss(id);
+    cleanId = validateId(cleanId);
+
+    const users = await userData.getFollowers(req.currentUser, cleanId);
+    return res.json({
+      followers: await formatItemListResponse(req, users),
+    });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
@@ -48,12 +82,12 @@ userRouter.route("/search").post(async (req, res) => {
     let cleanKeyword = xss(keyword);
     let cleanRole = xss(role);
 
-    const payload = {}
+    const payload = {};
     if (cleanKeyword) {
-      payload.keyword = validateString(cleanKeyword)
+      payload.keyword = validateString(cleanKeyword);
     }
     if (cleanRole) {
-      payload.role = validateRole(cleanRole)
+      payload.role = validateRole(cleanRole);
     }
 
     const users = await userData.searchUsers(req.currentUser, payload);
@@ -106,17 +140,16 @@ userRouter.route("/:id/update-follow-status").put(async (req, res) => {
   }
 });
 
-userRouter.route("/users/:userId/update").put( async (req, res) => {
+userRouter.route("/:id/update").put(async (req, res) => {
   try {
-    const { userId } = req.params;
-    const currentUser = await getLoggedInUser(req.user.email); // Assuming this retrieves the logged-in user
+    const { id } = req.params;
 
-    if (currentUser._id.toString() !== userId) {
+    if (req.currentUser?._id?.toString() !== id) {
       return res.status(403).json({ message: "Unauthorized access" });
     }
 
-    const updatedUser = await updateCurrentUser(currentUser, req.body);
-    res.json(updatedUser);
+    const updatedUser = await userData.updateCurrentUser(req.currentUser, req.body);
+    res.json({ user: formatItemResponse(req, updatedUser) });
   } catch (error) {
     res.status(error.status || 500).json({ message: error.message });
   }

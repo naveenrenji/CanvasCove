@@ -30,6 +30,15 @@ const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  const refreshCurrentUser = useCallback(async () => {
+    try {
+      const data = await getLoggedInUser();
+      setUser(data);
+    } catch (error) {
+      throw new Error("Could not get your details. Please try again.");
+    }
+  }, []);
+
   useEffect(() => {
     // Get loggedIn status from local storage and set accordingly
     if (getFromStorage(userAccessTokenKey)) {
@@ -63,6 +72,7 @@ const AuthProvider = ({ children }) => {
       signOut,
       isLoggedIn,
       getCurrentUser,
+      refreshCurrentUser,
     }),
     [
       user,
@@ -70,7 +80,8 @@ const AuthProvider = ({ children }) => {
       signIn,
       signOut,
       isLoggedIn,
-      getCurrentUser
+      getCurrentUser,
+      refreshCurrentUser,
     ]
   );
 

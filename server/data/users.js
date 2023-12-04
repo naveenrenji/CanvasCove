@@ -73,20 +73,16 @@ export const getUserLikedArt = async (currentUser, userId) => {
   return artList;
 };
 
-
-const validateCurrentPassword = async (userId, currentPassword) => {
-  const user = await User.findById(userId);
-  return user.verifyPassword(currentPassword);
-};
-
-
 export const updateCurrentUser = async (currentUser, body) => {
   try {
-    const { gender, firstName, lastName, bio, currentPassword, newPassword } = body;
+    const { gender, firstName, lastName, bio, currentPassword, newPassword } =
+      body;
     let encryptedPassword;
 
     if (currentPassword && newPassword) {
-      const isCurrentPasswordValid = await currentUser.verifyPassword(currentPassword);
+      const isCurrentPasswordValid = await currentUser.verifyPassword(
+        currentPassword
+      );
       if (!isCurrentPasswordValid) {
         throw { status: 400, message: "Current password is incorrect" };
       }
@@ -95,15 +91,22 @@ export const updateCurrentUser = async (currentUser, body) => {
 
     const fieldsToUpdate = {};
     if (gender) fieldsToUpdate.gender = xss(validateGender(gender));
-    if (firstName) fieldsToUpdate.firstName = xss(validateString(firstName, "firstName", { maxLength: 50 }));
-    if (lastName) fieldsToUpdate.lastName = xss(validateString(lastName, "lastName", { maxLength: 50 }));
-    if (bio) fieldsToUpdate.bio = xss(validateString(bio, "bio", { maxLength: 200 }));
+    if (firstName)
+      fieldsToUpdate.firstName = xss(
+        validateString(firstName, "firstName", { maxLength: 50 })
+      );
+    if (lastName)
+      fieldsToUpdate.lastName = xss(
+        validateString(lastName, "lastName", { maxLength: 50 })
+      );
+    if (bio)
+      fieldsToUpdate.bio = xss(validateString(bio, "bio", { maxLength: 200 }));
     if (encryptedPassword) fieldsToUpdate.encryptedPassword = encryptedPassword;
 
     await User.updateOne({ _id: currentUser._id }, { $set: fieldsToUpdate });
 
     // Fetch and return the updated user details
-    const updatedUser = await User.findById(currentUser._id).select('-encryptedPassword');
+    const updatedUser = await User.viewCurrentUser(currentUser);
     return updatedUser;
   } catch (error) {
     throw {
@@ -112,7 +115,6 @@ export const updateCurrentUser = async (currentUser, body) => {
     };
   }
 };
-
 
 export const searchUsers = async (currentUser, { keyword, role }) => {
   try {
@@ -155,7 +157,7 @@ export const searchUsers = async (currentUser, { keyword, role }) => {
         {
           $match: {
             ...(role ? { role } : {}),
-            ...(typeof keyword === 'string' && keyword
+            ...(typeof keyword === "string" && keyword
               ? {
                   $or: [
                     { firstName: { $regex: keyword, $options: "i" } },
@@ -261,4 +263,127 @@ export const updateFollowingStatus = async (currentUser, userId) => {
   }
 
   return updatedUser;
+};
+
+export const getFollowingUsers = async (currentUser, userId) => {
+  try {
+    const user = await User.findById(userId);
+    const users = await User.aggregate([
+      {
+        $match: {
+          _id: user.following,
+        },
+      },
+      {
+        $lookup: {
+          from: "images",
+          let: { imageIds: "$images" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $in: ["$_id", "$$imageIds"] },
+              },
+            },
+          ],
+          as: "images",
+        },
+      },
+      {
+        $sort: {
+          displayName: 1,
+        },
+      },
+      {
+        $addFields: {
+          isFollowedByCurrentUser: {
+            $and: [
+              {
+                $in: [currentUser._id, "$followers"],
+              },
+              {
+                $in: ["$_id", currentUser.following],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          firstName: 1,
+          lastName: 1,
+          displayName: 1,
+          images: 1,
+          isFollowedByCurrentUser: 1,
+        },
+      },
+    ]);
+    return users;
+  } catch (error) {
+    throw {
+      status: error.status || 500,
+      message: error.message || "Internal Server Error",
+    };
+  }
+};
+
+export const getFollowers = async (currentUser, userId) => {
+  try {
+    const users = await User.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(userId.toString()),
+        },
+      },
+      {
+        $lookup: {
+          from: "images",
+          let: { imageIds: "$images" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $in: ["$_id", "$$imageIds"] },
+              },
+            },
+          ],
+          as: "images",
+        },
+      },
+      {
+        $sort: {
+          displayName: 1,
+        },
+      },
+      {
+        $addFields: {
+          isFollowingCurrentUser: {
+            $and: [
+              {
+                $in: [currentUser._id, "$following"],
+              },
+              {
+                $in: ["$_id", currentUser.followers],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          firstName: 1,
+          lastName: 1,
+          displayName: 1,
+          images: 1,
+          isFollowingCurrentUser: 1,
+        },
+      },
+    ]);
+    return users;
+  } catch (error) {
+    throw {
+      status: error.status || 500,
+      message: error.message || "Internal Server Error",
+    };
+  }
 };

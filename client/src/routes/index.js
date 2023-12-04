@@ -17,9 +17,9 @@ import {
   Explore,
   NotFound,
   CreateArt,
-  UserProfile,
   Account,
   UpdateUser,
+  User,
 } from "../components";
 
 const Routes = () => {
@@ -65,7 +65,7 @@ const Routes = () => {
             path=":id"
             element={
               <RequireAuth>
-                <UserProfile />
+                <User />
               </RequireAuth>
             }
           />

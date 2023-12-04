@@ -1,10 +1,17 @@
 import React from "react";
-import { Alert, Button, Col, Container, Nav, Row } from "react-bootstrap";
+import {
+  Alert,
+  Button,
+  Col,
+  Container,
+  Nav,
+  Row,
+} from "react-bootstrap";
 import useAuth from "../useAuth";
 import { artAPI, userApi } from "../api";
 import { INTERACTION_TYPES, USER_ROLES } from "../constants";
 import { Link } from "react-router-dom";
-import { Loader, OverlayArtCard } from "./common";
+import { ArtCardPlaceholder, OverlayArtCard } from "./common";
 
 const ArtList = () => {
   const auth = useAuth();
@@ -70,7 +77,6 @@ const ArtList = () => {
 
   return (
     <Container fluid="md">
-      {loading ? <Loader /> : null}
       {alertError ? (
         <Row>
           <Alert variant="danger" onClose={() => setAlertError()} dismissible>
@@ -97,8 +103,16 @@ const ArtList = () => {
           </Button>
         ) : null}
       </Container>
-      <Container style={{ marginTop: "1rem" }}>
-        {error ? (
+      <Container style={{ marginTop: "1.5rem" }}>
+        {loading ? (
+          <Row>
+            {[1, 2, 3].map((art) => (
+              <Col key={art._id} xs={12} md={6} lg={4} className="mb-4">
+                <ArtCardPlaceholder />
+              </Col>
+            ))}
+          </Row>
+        ) : error ? (
           <Alert>{error}</Alert>
         ) : artList?.length ? (
           <Row>
