@@ -31,7 +31,9 @@ const Routes = () => {
         <Route
           path="/update-profile"
           element={
+            <RequireAuth>
               <UpdateUser />
+            </RequireAuth>
           }
         />
         <Route
