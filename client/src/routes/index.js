@@ -7,16 +7,17 @@ import Redirector from "./Redirector";
 import RequireAuth from "./RequireAuth";
 
 import {
+  Art,
   Home,
   Login,
   Signup,
   Welcome,
-  NotFound,
-  Art,
-  CreateArt,
   EditArt,
   ArtList,
   Explore,
+  NotFound,
+  CreateArt,
+  UserProfile,
 } from "../components";
 
 const Routes = () => {
@@ -49,6 +50,17 @@ const Routes = () => {
             </RequireAuth>
           }
         />
+        <Route path="/users" element={<Outlet />}>
+          <Route
+            path=":id"
+            element={
+              <RequireAuth>
+                <UserProfile />
+              </RequireAuth>
+            }
+          />
+        </Route>
+      
         <Route path="/art" element={<Outlet />}>
           <Route
             index
