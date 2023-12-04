@@ -14,40 +14,19 @@ const UserProfile = ({ user }) => {
         bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla euismod, nisl eget ultricies aliquam, quam libero ultricies nunc, vitae ultricies nisl",
     };
 
-    const sectionStyle = {
-        padding: '20px',
-        backgroundColor: '#f8f9fa',
-        borderRadius: '10px',
-        margin: '20px 0'
-    };
+    // const sectionStyle = {
+    //     padding: '20px',
+    //     backgroundColor: '#f8f9fa',
+    //     borderRadius: '10px',
+    //     margin: '20px 0'
+    // };
 
-    return (
-        <Container className="mt-5">
-            <Row>
-                <Col md={12} className="text-center">
-                    <Image src={artist.profilePicture} alt={artist.displayName} roundedCircle fluid style={{ width: '150px', height: '150px', objectFit: 'cover' }} />
-                    <div style={sectionStyle}>
-                        <h2>{artist.displayName}</h2>
-                        <p><strong>Name:</strong> {artist.firstName} {artist.lastName}</p>
-                        <p><strong>Date of Birth:</strong> {artist.dateOfBirth}</p>
-                        <p><strong>Followers:</strong> {artist.followersCount}</p>
-                        <p>{artist.bio}</p>
-                        <Button variant="primary">Follow</Button>
-                    </div>
-                </Col>
-            </Row>
-        </Container>
-    );
-
-    // STYLE 3
     // return (
     //     <Container className="mt-5">
-    //         <Row className="justify-content-center">
-    //             <Col md={8}>
-    //                 <div className="text-center">
-    //                     <Image src={artist.profilePicture} alt={artist.displayName} roundedCircle fluid style={{ width: '200px', height: '200px', objectFit: 'cover' }} />
-    //                 </div>
-    //                 <div className="text-center mt-4">
+    //         <Row>
+    //             <Col md={12} className="text-center">
+    //                 <Image src={artist.profilePicture} alt={artist.displayName} roundedCircle fluid style={{ width: '150px', height: '150px', objectFit: 'cover' }} />
+    //                 <div style={sectionStyle}>
     //                     <h2>{artist.displayName}</h2>
     //                     <p><strong>Name:</strong> {artist.firstName} {artist.lastName}</p>
     //                     <p><strong>Date of Birth:</strong> {artist.dateOfBirth}</p>
@@ -59,6 +38,27 @@ const UserProfile = ({ user }) => {
     //         </Row>
     //     </Container>
     // );
+
+    // STYLE 3
+    return (
+        <Container className="mt-5">
+            <Row className="justify-content-center">
+                <Col md={8}>
+                    <div className="text-center">
+                        <Image src={artist.profilePicture} alt={artist.displayName} roundedCircle fluid style={{ width: '200px', height: '200px', objectFit: 'cover' }} />
+                    </div>
+                    <div className="text-center mt-4">
+                        <h2>{artist.displayName}</h2>
+                        <p><strong>Name:</strong> {artist.firstName} {artist.lastName}</p>
+                        <p><strong>Date of Birth:</strong> {artist.dateOfBirth}</p>
+                        <p><strong>Followers:</strong> {artist.followersCount}</p>
+                        <p>{artist.bio}</p>
+                        <Button variant="primary">Follow</Button>
+                    </div>
+                </Col>
+            </Row>
+        </Container>
+    );
 
     // STYLE 2
     // const backgroundStyle = {
