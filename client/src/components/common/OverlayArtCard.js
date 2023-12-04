@@ -13,7 +13,9 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
   const navigate = useNavigate();
   const [showComments, setShowComments] = React.useState(false);
 
-  const onToggleShowComments = React.useCallback(() => {
+  const onToggleShowComments = React.useCallback((e) => {
+    e.stopPropagation();
+    e.preventDefault();
     setShowComments((prev) => !prev);
   }, []);
 
@@ -45,11 +47,13 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
           maxHeight: "100%",
           maxWidth: "100%",
         }}
+      />
+      <Card.ImgOverlay
+        className=""
         onClick={() => {
           navigate(`/art/${art._id}`);
         }}
-      />
-      <Card.ImgOverlay className="">
+      >
         <div
           style={{
             display: "flex",
@@ -82,7 +86,11 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
                 <Stack direction="horizontal" gap={1}>
                   <IconButton
                     icon={"heart" + (userLiked ? "-fill" : "")}
-                    onClick={() => onLikeClick(art)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      onLikeClick(art);
+                    }}
                     title={userLiked ? "Unlike" : "Like"}
                     className="p-2 bg-white"
                   />

@@ -1,28 +1,19 @@
 import React from "react";
-import {
-  Alert,
-  Card,
-  Col,
-  Container,
-  Nav,
-  OverlayTrigger,
-  Row,
-  Tooltip,
-} from "react-bootstrap";
+import { Alert, Button, Col, Container, Nav, Row } from "react-bootstrap";
 import useAuth from "../useAuth";
-import { userApi } from "../api";
-import { USER_ROLES } from "../constants";
-import { Link, useNavigate } from "react-router-dom";
-import { Loader } from "./common";
+import { artAPI, userApi } from "../api";
+import { INTERACTION_TYPES, USER_ROLES } from "../constants";
+import { Link } from "react-router-dom";
+import { Loader, OverlayArtCard } from "./common";
 
 const ArtList = () => {
   const auth = useAuth();
-  const navigate = useNavigate();
   const isArtist = auth?.user?.role === USER_ROLES.ARTIST;
 
   const [artList, setArtList] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
+  const [alertError, setAlertError] = React.useState(null);
   const [currentTab, setCurrentTab] = React.useState("liked-art");
 
   const handleSelect = (eventKey) => {
@@ -45,10 +36,51 @@ const ArtList = () => {
     })();
   }, [currentTab, auth?.user?._id]);
 
+  const handleLikeClick = async (art) => {
+    try {
+      const updatedArt = await artAPI.interactWithArtApi(
+        art._id,
+        INTERACTION_TYPES.LIKE
+      );
+      setArtList((prevList) => {
+        const updatedFeed = prevList.map((art) => {
+          if (art._id === updatedArt._id) {
+            return updatedArt;
+          }
+          return art;
+        });
+        return updatedFeed;
+      });
+    } catch (error) {
+      setAlertError(error?.message);
+    }
+  };
+
+  const handleArtChange = (updatedArt) => {
+    setArtList((prevList) => {
+      const updatedFeed = prevList.map((art) => {
+        if (art._id === updatedArt._id) {
+          return updatedArt;
+        }
+        return art;
+      });
+      return updatedFeed;
+    });
+  };
+
   return (
     <Container fluid="md">
       {loading ? <Loader /> : null}
-      <Container>
+      {alertError ? (
+        <Row>
+          <Alert variant="danger" onClose={() => setAlertError()} dismissible>
+            <Alert.Heading>Oops! Could not like this art</Alert.Heading>
+            <hr />
+            <p>{alertError}</p>
+          </Alert>
+        </Row>
+      ) : null}
+      <Container className="d-flex justify-content-between">
         <Nav variant="underline" activeKey={currentTab} onSelect={handleSelect}>
           <Nav.Item>
             <Nav.Link eventKey="liked-art">My Liked Art</Nav.Link>
@@ -59,6 +91,11 @@ const ArtList = () => {
             </Nav.Link>
           </Nav.Item>
         </Nav>
+        {isArtist ? (
+          <Button as={Link} to="/art/create">
+            + Create Art
+          </Button>
+        ) : null}
       </Container>
       <Container style={{ marginTop: "1rem" }}>
         {error ? (
@@ -67,25 +104,11 @@ const ArtList = () => {
           <Row>
             {artList.map((art) => (
               <Col key={art._id} xs={12} md={6} lg={4} className="mb-4">
-                <OverlayTrigger
-                  placement="bottom"
-                  overlay={
-                    <Tooltip id={`art-${art._id}`}>
-                      {art.title}, By <strong>{art.artist.displayName}</strong>
-                    </Tooltip>
-                  }
-                >
-                  <Card
-                    onClick={() => {
-                      navigate(`/art/${art._id}`);
-                    }}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <Card.Body>
-                      <Card.Img src={art.images?.[0]?.url} alt={art.title} />
-                    </Card.Body>
-                  </Card>
-                </OverlayTrigger>
+                <OverlayArtCard
+                  art={art}
+                  onArtChange={handleArtChange}
+                  onLikeClick={handleLikeClick}
+                />
               </Col>
             ))}
           </Row>
