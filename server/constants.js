@@ -29,4 +29,5 @@ export const INTERACTION_TYPES = {
 };
 
 export const FEED_LIMIT = 1;
+export const ON_FIRE_ART_LIMIT = 4;
 export const TOP_COMMENTS_COUNT = 1;

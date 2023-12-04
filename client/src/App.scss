@@ -1,0 +1,38 @@
+p {
+  margin-bottom: 1rem;
+}
+
+$primary: #0a1931;
+$secondary: #185adb;
+$info: #39a9cb;
+$danger: #cf0a0a;
+$warning: #ffc947;
+$light: #efefef;
+
+@import "~bootstrap/scss/bootstrap";
+
+.btn-danger {
+  --bs-btn-color: #fff;
+}
+
+body {
+  background-color: $light;
+}
+
+.btn-outline-info {
+  --bs-btn-hover-color: #efefef;
+}
+
+.card-hover-overlay .card-img-overlay {
+  cursor: pointer;
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.5s ease-in-out;
+  background-color: none;
+}
+
+.card-hover-overlay:hover .card-img-overlay {
+  visibility: visible;
+  opacity: 1;
+  background-color: rgba(216, 217, 218, 0.95);
+}

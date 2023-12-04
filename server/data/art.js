@@ -3,6 +3,7 @@ import {
   ART_VISIBILITY,
   FEED_LIMIT,
   INTERACTION_TYPES,
+  ON_FIRE_ART_LIMIT,
   USER_ROLES,
 } from "../constants.js";
 import { Art } from "../models/index.js";
@@ -15,7 +16,7 @@ import {
 import ImageService from "../services/image-service.js";
 import xss from "xss";
 
-export const getFeed = async (currentUser, page = 1) => {
+export const getFeed = async (currentUser, { page = 1, artType }) => {
   if (!currentUser) {
     throw { status: 401, message: "Unauthorised request" };
   }
@@ -35,6 +36,7 @@ export const getFeed = async (currentUser, page = 1) => {
           artist: { $in: followingUsers },
           isVisible: true,
           visibility: ART_VISIBILITY.PUBLIC,
+          ...(artType ? { artType } : {}),
         },
       },
       {
@@ -160,6 +162,151 @@ export const getFeed = async (currentUser, page = 1) => {
   }
 
   return feed;
+};
+
+export const getOnFireArt = async (currentUser, { page = 1 }) => {
+  if (!currentUser) {
+    throw { status: 401, message: "Unauthorised request" };
+  }
+  const skipAmount = (page - 1) * ON_FIRE_ART_LIMIT;
+
+  let onFireArt;
+
+  try {
+    onFireArt = await Art.aggregate([
+      {
+        $match: {
+          // added in last 24 hours
+          createdAt: {
+            $gte: new Date(new Date() - 24 * 60 * 60 * 1000),
+          },
+          isVisible: true,
+          visibility: ART_VISIBILITY.PUBLIC,
+        },
+      },
+      {
+        $addFields: {
+          likesCount: {
+            $size: {
+              $filter: {
+                input: "$interactions",
+                as: "interaction",
+                cond: { $eq: ["$$interaction.type", INTERACTION_TYPES.LIKE] },
+              },
+            },
+          },
+          viewsCount: {
+            $size: {
+              $filter: {
+                input: "$interactions",
+                as: "interaction",
+                cond: { $eq: ["$$interaction.type", INTERACTION_TYPES.VIEW] },
+              },
+            },
+          },
+          commentsCount: { $size: "$comments" },
+        },
+      },
+      {
+        $addFields: {
+          recencyInMillis: {
+            $subtract: [new Date(), "$createdAt"],
+          },
+          recencyScore: {
+            $divide: [
+              1000 * 60 * 60,
+              {
+                $cond: [
+                  { $eq: ["$recencyInMillis", 0] },
+                  Number.MAX_SAFE_INTEGER,
+                  { $divide: [1, "$recencyInMillis"] },
+                ],
+              },
+            ],
+          }, // Recency in hours
+          score: {
+            $sum: ["$likesCount", "$commentsCount", "$recencyScore"],
+          },
+        },
+      },
+      { $sort: { score: -1 } }, // Sort by score, descending
+      { $skip: skipAmount }, // Skip the first n results
+      { $limit: FEED_LIMIT }, // Limit the number of results
+      {
+        $addFields: {
+          currentUserInteractions: {
+            $filter: {
+              input: "$interactions",
+              as: "interaction",
+              cond: { $eq: ["$$interaction.user", currentUser._id] },
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "artist",
+          foreignField: "_id",
+          as: "artist",
+        },
+      },
+      { $unwind: "$artist" },
+      {
+        $addFields: {
+          "artist.isFollowedByCurrentUser": {
+            $and: [
+              {
+                $in: [currentUser._id, "$artist.followers"],
+              },
+              {
+                $in: ["$artist._id", currentUser.following],
+              },
+            ],
+          },
+          "artist.isFollowingCurrentUser": {
+            $and: [
+              {
+                $in: [currentUser._id, "$artist.following"],
+              },
+              {
+                $in: ["$artist._id", currentUser.followers],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          "artist._id": 1,
+          "artist.firstName": 1,
+          "artist.lastName": 1,
+          "artist.displayName": 1,
+          "artist.images": 1,
+          "artist.isFollowedByCurrentUser": 1,
+          "artist.isFollowingCurrentUser": 1,
+          currentUserInteractions: 1,
+          score: 1,
+          priceInCents: 1,
+          images: 1,
+          title: 1,
+          description: 1,
+          likesCount: 1,
+          viewsCount: 1,
+          commentsCount: 1,
+          createdAt: 1,
+        },
+      },
+    ]);
+  } catch (error) {
+    throw { status: 400, message: error.toString() };
+  }
+
+  if (!onFireArt) {
+    throw { status: 400, message: "Could not get onFireArt" };
+  }
+
+  return onFireArt;
 };
 
 export const createArt = async (currentUser, body) => {
@@ -387,6 +534,8 @@ export const searchArt = async (currentUser, { keyword }) => {
           { title: { $regex: keyword, $options: "i" } },
           { description: { $regex: keyword, $options: "i" } },
         ],
+        isVisible: true,
+        visibility: ART_VISIBILITY.PUBLIC,
       },
     });
   } catch (error) {
@@ -449,7 +598,10 @@ export const getArt = async (currentUser, artId, forUpdate = false) => {
           },
         ])
       : await Art.withMetrics(currentUser, {
-          $match: { _id: new mongoose.Types.ObjectId(artId) },
+          $match: {
+            _id: new mongoose.Types.ObjectId(artId),
+            isVisible: true,
+          },
         });
     art = result?.[0];
   } catch (error) {

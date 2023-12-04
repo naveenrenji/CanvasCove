@@ -14,10 +14,11 @@ const IconButton = ({
 }) => {
   return (
     <Button
-      className={"rounded-pill icon-button " + className || ""}
+      className={"icon-button " + className || ""}
       onClick={onClick}
       title={title}
-      variant={variant || "light"}
+      variant={"link"}
+      style={style}
       {...(innerRef ? { ref: innerRef } : {})}
       {...rest}
     >

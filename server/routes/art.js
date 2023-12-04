@@ -14,8 +14,31 @@ const artRouter = Router();
 
 artRouter.route("/feed").get(async (req, res) => {
   try {
-    const feed = await artData.getFeed(req.currentUser, req?.query?.page || 1);
+    const { artType } = req.query;
+    let cleanArtType;
+    if (artType) {
+      cleanArtType = xss(artType);
+      cleanArtType = validateString(cleanArtType);
+    }
+
+    const feed = await artData.getFeed(req.currentUser, {
+      page: req?.query?.page || 1,
+      artType: cleanArtType,
+    });
     return res.json({ feed: await formatItemListResponse(req, feed, "Art") });
+  } catch (error) {
+    return res.status(error?.status || 500).json({ error: error?.message });
+  }
+});
+
+artRouter.route("/on-fire").get(async (req, res) => {
+  try {
+    const feed = await artData.getOnFireArt(req.currentUser, {
+      page: req?.query?.page || 1,
+    });
+    return res.json({
+      onFireArt: await formatItemListResponse(req, feed, "Art"),
+    });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }

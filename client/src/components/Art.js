@@ -16,6 +16,7 @@ const Art = () => {
   const getArt = React.useCallback(async () => {
     try {
       setLoading(true);
+      await artAPI.interactWithArtApi(id, INTERACTION_TYPES.VIEW);
       const artRes = await artAPI.getArtApi(id);
       setArt(artRes);
     } catch (error) {

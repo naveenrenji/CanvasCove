@@ -1,7 +1,29 @@
-.btn.btn-icon,
-.btn.icon-button:hover,
-.btn.icon-button:active,
-.btn.icon-button:focus-visible {
-  background-color: unset !important;
-  border: 0;
+.icon-button {
+  padding: 10px;
+  /* Adjust the padding as needed */
+  background-color: transparent;
+  /* No background */
+  border: none;
+  /* No border */
+  display: inline-flex;
+  /* For proper alignment of the icon */
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+}
+
+.icon-button i {
+  /* Adjust the icon size */
+  font-size: 1rem;
+  color: var(--color-primary);
+  line-height: 1rem;
+  font-weight: bold;
+}
+
+/* Change the appearance on hover and focus if needed */
+.icon-button:hover,
+.icon-button:focus {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
 }

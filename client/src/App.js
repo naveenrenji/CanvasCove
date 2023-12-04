@@ -1,5 +1,4 @@
-import './App.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.scss';
 import Routes from "./routes"
 import { AuthProvider } from "./components";
 import { BrowserRouter } from 'react-router-dom';

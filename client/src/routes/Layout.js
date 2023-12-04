@@ -2,19 +2,22 @@ import React from "react";
 import { Nav, Navbar, Offcanvas } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
 
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import useAuth from "../useAuth";
 
 const Layout = () => {
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  const onLogout = () => {
+    auth.signOut(() => navigate("/"));
+  };
+
   return (
     <div style={{ width: "100vw", height: "100vh", padding: 0 }}>
-      <Navbar
-        expand="sm"
-        bg="light"
-        data-bs-theme="light"
-        style={{ width: "100vw" }}
-      >
+      <Navbar expand="sm" bg="primary" style={{ width: "100vw" }}>
         <Container fluid="md">
-          <Navbar.Brand as={Link} to="/home">
+          <Navbar.Brand as={Link} to="/welcome" style={{ color: "#EFEFEF" }}>
             Canvas Cove
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="offcanvasNavbar-expand-sm" />
@@ -30,18 +33,50 @@ const Layout = () => {
             </Offcanvas.Header>
             <Offcanvas.Body>
               <Nav className="justify-content-end flex-grow-1 pe-3">
-                <Nav.Link as={Link} to="/home">
-                  Home
-                </Nav.Link>
-                <Nav.Link as={Link} to="/explore">
-                  Explore
-                </Nav.Link>
-                <Nav.Link as={Link} to="/art">
-                  Art
-                </Nav.Link>
-                <Nav.Link as={Link} to="/account">
-                  Account
-                </Nav.Link>
+                {auth.isLoggedIn ? (
+                  <>
+                    <Nav.Link as={Link} to="/home" style={{ color: "#EFEFEF" }}>
+                      Home
+                    </Nav.Link>
+                    <Nav.Link
+                      as={Link}
+                      to="/explore"
+                      style={{ color: "#EFEFEF" }}
+                    >
+                      Explore
+                    </Nav.Link>
+                    <Nav.Link as={Link} to="/art" style={{ color: "#EFEFEF" }}>
+                      Art
+                    </Nav.Link>
+                    <Nav.Link
+                      as={Link}
+                      to="/account"
+                      style={{ color: "#EFEFEF" }}
+                    >
+                      Account
+                    </Nav.Link>
+                    <Nav.Link onClick={onLogout} style={{ color: "#EFEFEF" }}>
+                      Logout
+                    </Nav.Link>
+                  </>
+                ) : (
+                  <>
+                    <Nav.Link
+                      as={Link}
+                      to="/login"
+                      style={{ color: "#EFEFEF" }}
+                    >
+                      Login
+                    </Nav.Link>
+                    <Nav.Link
+                      as={Link}
+                      to="/sign-up"
+                      style={{ color: "#EFEFEF" }}
+                    >
+                      Sign Up
+                    </Nav.Link>
+                  </>
+                )}
               </Nav>
             </Offcanvas.Body>
           </Navbar.Offcanvas>

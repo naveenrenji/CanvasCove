@@ -6,3 +6,4 @@ export { default as OverlayLink } from "./OverlayLink.js";
 export { default as Icon } from "./Icon.js";
 export { default as ButtonWithIcon } from "./ButtonWithIcon.js";
 export { default as ArtForm } from "./ArtForm.js";
+export { default as OverlayArtCard } from "./OverlayArtCard.js";

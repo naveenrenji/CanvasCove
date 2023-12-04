@@ -1,8 +1,17 @@
 import httpInstance from "./httpInstance";
 
-export const getFeedApi = async (page) => {
-  const response = await httpInstance.get("/art/feed", { params: { page } });
+export const getFeedApi = async (page, selectedPill) => {
+  const response = await httpInstance.get("/art/feed", {
+    params: { page, artType: selectedPill === "All" ? null : selectedPill },
+  });
   return response?.data?.feed || [];
+};
+
+export const getOnFireArtApi = async (page) => {
+  const response = await httpInstance.get("/art/on-fire", {
+    params: { page },
+  });
+  return response?.data?.onFireArt || [];
 };
 
 export const interactWithArtApi = async (artId, interactionType) => {

@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useCallback, useEffect } from "react";
 import { Loader } from "./index";
 import AuthContext from "../AuthContext";
-import { getFromStorage, setToStorage } from "../helpers";
+import { clearFromStorage, getFromStorage, setToStorage } from "../helpers";
 import { getLoggedInUser } from "../api/auth";
 
 const userAccessTokenKey = process.env.REACT_APP_USER_ACCESS_TOKEN_KEY;
@@ -48,11 +48,19 @@ const AuthProvider = ({ children }) => {
     [getCurrentUser]
   );
 
+  const signOut = useCallback(async (callback) => {
+    setUser();
+    setIsLoggedIn(false);
+    clearFromStorage(userAccessTokenKey);
+    callback();
+  }, []);
+
   const authValues = useMemo(
     () => ({
       user,
       error,
       signIn,
+      signOut,
       isLoggedIn,
       getCurrentUser,
     }),
@@ -60,6 +68,7 @@ const AuthProvider = ({ children }) => {
       user,
       error,
       signIn,
+      signOut,
       isLoggedIn,
       getCurrentUser
     ]
