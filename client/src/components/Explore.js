@@ -145,14 +145,14 @@ const Explore = () => {
                                         <OverlayTrigger
                                             placement="bottom"
                                             overlay={
-                                              <Tooltip id={`artist-${_entity._id}`}>
+                                              <Tooltip id={`/users/${_entity._id}`}>
                                                 View more about {_entity?.firstName} {_entity?.lastName}
                                               </Tooltip>
                                             }
                                         >
                                             <Card
                                                 onClick={() => {
-                                                    navigate(`/art/${_entity?._id}`);
+                                                    navigate(`/users/${_entity?._id}`);
                                                 }}
                                                 style={{ cursor: "pointer" }}
                                             >

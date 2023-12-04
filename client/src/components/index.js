@@ -10,3 +10,4 @@ export { default as CreateArt } from "./CreateArt";
 export { default as EditArt } from "./EditArt";
 export { default as ArtList } from "./ArtList";
 export { default as Explore } from "./Explore";
+export { default as UserProfile } from "./common/UserProfile";
