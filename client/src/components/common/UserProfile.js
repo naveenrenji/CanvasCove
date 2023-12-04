@@ -40,25 +40,25 @@ const UserProfile = ({ user }) => {
     // );
 
     // STYLE 3
-    return (
-        <Container className="mt-5">
-            <Row className="justify-content-center">
-                <Col md={8}>
-                    <div className="text-center">
-                        <Image src={artist.profilePicture} alt={artist.displayName} roundedCircle fluid style={{ width: '200px', height: '200px', objectFit: 'cover' }} />
-                    </div>
-                    <div className="text-center mt-4">
-                        <h2>{artist.displayName}</h2>
-                        <p><strong>Name:</strong> {artist.firstName} {artist.lastName}</p>
-                        <p><strong>Date of Birth:</strong> {artist.dateOfBirth}</p>
-                        <p><strong>Followers:</strong> {artist.followersCount}</p>
-                        <p>{artist.bio}</p>
-                        <Button variant="primary">Follow</Button>
-                    </div>
-                </Col>
-            </Row>
-        </Container>
-    );
+    // return (
+    //     <Container className="mt-5">
+    //         <Row className="justify-content-center">
+    //             <Col md={8}>
+    //                 <div className="text-center">
+    //                     <Image src={artist.profilePicture} alt={artist.displayName} roundedCircle fluid style={{ width: '200px', height: '200px', objectFit: 'cover' }} />
+    //                 </div>
+    //                 <div className="text-center mt-4">
+    //                     <h2>{artist.displayName}</h2>
+    //                     <p><strong>Name:</strong> {artist.firstName} {artist.lastName}</p>
+    //                     <p><strong>Date of Birth:</strong> {artist.dateOfBirth}</p>
+    //                     <p><strong>Followers:</strong> {artist.followersCount}</p>
+    //                     <p>{artist.bio}</p>
+    //                     <Button variant="primary">Follow</Button>
+    //                 </div>
+    //             </Col>
+    //         </Row>
+    //     </Container>
+    // );
 
     // STYLE 2
     // const backgroundStyle = {
@@ -89,27 +89,27 @@ const UserProfile = ({ user }) => {
     // );
 
     // STYLE 1
-    // return (
-    //     <Container className="mt-5">
-    //         <Card>
-    //             <Card.Body>
-    //                 <Row>
-    //                     <Col md={4} className="text-center">
-    //                         <img src={artist.profilePicture} alt={artist.displayName} className="img-fluid rounded-circle" />
-    //                     </Col>
-    //                     <Col md={8}>
-    //                         <h2>{artist.displayName}</h2>
-    //                         <p><strong>Name:</strong> {artist.firstName} {artist.lastName}</p>
-    //                         <p><strong>Date of Birth:</strong> {artist.dateOfBirth}</p>
-    //                         <p><strong>Followers:</strong> {artist.followersCount}</p>
-    //                         <p>{artist.bio}</p>
-    //                         <Button variant="primary">Follow</Button>
-    //                     </Col>
-    //                 </Row>
-    //             </Card.Body>
-    //         </Card>
-    //     </Container>
-    // );
+    return (
+        <Container className="mt-5">
+            <Card>
+                <Card.Body>
+                    <Row>
+                        <Col md={4} className="text-center">
+                        <Image src={artist.profilePicture} alt={artist.displayName} roundedCircle fluid style={{ width: '250px', height: '250px', objectFit: 'cover' }} />
+                        </Col>
+                        <Col md={8}>
+                            <h2>{artist.displayName}</h2>
+                            <p><strong>Name:</strong> {artist.firstName} {artist.lastName}</p>
+                            <p><strong>Date of Birth:</strong> {artist.dateOfBirth}</p>
+                            <p><strong>Followers:</strong> {artist.followersCount}</p>
+                            <p>{artist.bio}</p>
+                            <Button variant="primary">Follow</Button>
+                        </Col>
+                    </Row>
+                </Card.Body>
+            </Card>
+        </Container>
+    );
 };
 
 export default UserProfile;
