@@ -25,19 +25,22 @@ const ArtTabs = ({ user }) => {
   };
 
   React.useEffect(() => {
-    (async () => {
-      try {
-        const list =
-          currentTab === "created-art"
-            ? await userApi.getArtList(user?._id)
-            : await userApi.getLikedArt(user?._id);
-        setArtList(list);
-        setLoading(false);
-      } catch (err) {
-        setError(err?.response?.data?.error || err?.message);
-        setLoading(false);
-      }
-    })();
+    if (user?._id) {
+      (async () => {
+        try {
+          setLoading(true);
+          const list =
+            currentTab === "created-art"
+              ? await userApi.getArtList(user._id)
+              : await userApi.getLikedArt(user._id);
+          setArtList(list);
+          setLoading(false);
+        } catch (err) {
+          setError(err?.response?.data?.error || err?.message);
+          setLoading(false);
+        }
+      })();
+    }
   }, [currentTab, user?._id]);
 
   const handleLikeClick = async (art) => {
@@ -107,7 +110,7 @@ const ArtTabs = ({ user }) => {
         {loading ? (
           <Row>
             {[1, 2, 3].map((art) => (
-              <Col key={art._id} xs={12} md={6} lg={4} className="mb-4">
+              <Col id={art} key={art._id} xs={12} md={6} lg={4} className="mb-4">
                 <ArtCardPlaceholder />
               </Col>
             ))}
@@ -117,7 +120,7 @@ const ArtTabs = ({ user }) => {
         ) : artList?.length ? (
           <Row>
             {artList.map((art) => (
-              <Col key={art._id} xs={12} md={6} lg={4} className="mb-4">
+              <Col id={art._id} key={art._id} xs={12} md={6} lg={4} className="mb-4">
                 <OverlayArtCard
                   art={art}
                   onArtChange={handleArtChange}

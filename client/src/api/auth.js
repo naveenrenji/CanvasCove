@@ -7,6 +7,7 @@ export const signUp = async (
   email,
   dob,
   role,
+  bio,
   gender,
   password
   ) => {
@@ -17,6 +18,7 @@ export const signUp = async (
       email,
       dob,
       role,
+      bio,
       gender,
       password
     });

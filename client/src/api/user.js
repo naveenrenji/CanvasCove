@@ -38,3 +38,9 @@ export const getFollowing = async (userId) => {
   const response = await httpInstance.get(`/users/${userId}/following`);
   return response?.data?.following || [];
 };
+
+// Get user by id
+export const getUser = async (userId) => {
+  const response = await httpInstance.get(`/users/${userId}`);
+  return response?.data?.user || {};
+};

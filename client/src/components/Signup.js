@@ -35,6 +35,10 @@ const Signup = () => {
         value: "",
         error: ""
     });
+    const [bio, setBio] = useState({
+        value: "",
+        error: ""
+    });
     const [password, setPassword] = useState({
         value: "",
         error: ""
@@ -85,6 +89,7 @@ const Signup = () => {
                 email.value.trim().toLowerCase(),
                 dob.value,
                 role.value,
+                bio.value.trim(),
                 gender.value,
                 password.value,
             );
@@ -266,6 +271,26 @@ const Signup = () => {
             </Form.Control>
             <Form.Control.Feedback type="invalid">
                 {gender.error}
+            </Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group className="mb-3 form-group" controlId="formBasicBio">
+            <Form.Label>Bio</Form.Label>
+            <Form.Control
+                as="textarea"
+                placeholder="Tell us something about yourself..."
+                value={bio.value}
+                onChange={(e) => {
+                    const value = e?.target?.value
+                    setBio({
+                        error: "",
+                        value
+                    });
+                }}
+                isInvalid={!!bio.error}
+            />
+            <Form.Control.Feedback type="invalid">
+                {bio.error}
             </Form.Control.Feedback>
         </Form.Group>
 

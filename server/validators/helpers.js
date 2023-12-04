@@ -288,7 +288,7 @@ const validateInteractionType = (value) => {
 };
 
 const validateSignUp = (payload) => {
-  let { displayName, firstName, lastName, email, password, dob, role, gender } =
+  let { displayName, firstName, lastName, email, password, dob, role, bio, gender } =
     payload;
 
   displayName = validateName(displayName, "Display Name");
@@ -298,9 +298,10 @@ const validateSignUp = (payload) => {
   password = validatePassword(password);
   dob = validateDOB(dob);
   role = validateRole(role);
+  bio = !!bio ? validateString(bio, "Bio", { maxLength: 200 }) : "";
   gender = validateGender(gender);
 
-  return { displayName, firstName, lastName, email, password, dob, role, gender };
+  return { displayName, firstName, lastName, email, password, dob, role, bio, gender };
 };
 
 

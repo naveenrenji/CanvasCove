@@ -26,7 +26,7 @@ authRouter.route("/login").post(async (req, res) => {
 
 authRouter.route("/sign-up").post(async (req, res) => {
   try {
-    let { displayName, firstName, lastName, email, dob, role, gender, password } = req.body;
+    let { displayName, firstName, lastName, email, dob, role, bio, gender, password } = req.body;
     displayName = xss(displayName)
     firstName = xss(firstName);
     lastName = xss(lastName);
@@ -34,10 +34,12 @@ authRouter.route("/sign-up").post(async (req, res) => {
     password = xss(password);
     dob = xss(dob);
     role = xss(role);
+    bio = xss(bio);
+
     gender = xss(gender);
 
     let signupPayload = validateSignUp({
-      displayName, firstName, lastName, email, password, dob, role, gender
+      displayName, firstName, lastName, email, password, dob, role, bio, gender
     });
 
     const user = await auth.signup(signupPayload);

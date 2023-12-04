@@ -1,11 +1,14 @@
 import React from 'react';
 import { Button, Card, Container, Row, Col, Image } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { defaultArtistProfile, defaultConnoisseurProfile } from '../../assets';
 
 import useAuth from '../../useAuth';
 import { userApi } from '../../api';
+import { USER_ROLES } from '../../constants';
 
 const UserProfile = ({ user, onUserChange }) => {
+    const defaultProfilePicture = user.role === USER_ROLES.ARTIST ? defaultArtistProfile : defaultConnoisseurProfile;
     // Artist mock data
     // const artist = {
     //     id: 1,
@@ -114,7 +117,7 @@ const UserProfile = ({ user, onUserChange }) => {
                 <Card.Body>
                     <Row>
                         <Col md={4} className="text-center">
-                        <Image src={user.profilePicture} alt={user.displayName} roundedCircle fluid style={{ width: '250px', height: '250px', objectFit: 'cover' }} />
+                        <Image src={user.images?.[0] || defaultProfilePicture} alt={user.displayName} roundedCircle fluid style={{ width: '250px', height: '250px', objectFit: 'cover' }} />
                         </Col>
                         <Col md={8}>
                             <h2>{user.displayName}</h2>
