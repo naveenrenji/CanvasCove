@@ -42,7 +42,11 @@ const ImageModal = ({
       <Modal.Body>
         <Carousel activeIndex={index} onSelect={handleSelect}>
           {images.map((image, idx) => (
-            <Carousel.Item key={idx}>
+            <Carousel.Item
+              key={idx}
+              className="text-center"
+              style={{ background: "#efefef" }}
+            >
               <Image
                 src={image.url}
                 alt={image.name}

@@ -96,6 +96,14 @@ const Login = () => {
           )}
           Login
         </Button>
+        <Button
+          variant="link"
+          onClick={() => navigate("/sign-up")}
+          style={{ width: "100%" }}
+          className="mt-3"
+        >
+          Don't have an account? Sign up here
+        </Button>
       </Form>
     </Card>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 import Card from "react-bootstrap/Card";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Stack } from "react-bootstrap";
 
 import { INTERACTION_TYPES } from "../../constants";
@@ -49,7 +49,6 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
         }}
       />
       <Card.ImgOverlay
-        className=""
         onClick={() => {
           navigate(`/art/${art._id}`);
         }}
@@ -63,19 +62,13 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
             fontWeight: "bold",
           }}
         >
-          <div style={{ width: "100%" }} direction="horizontal">
+          <div style={{ width: "100%" }}>
             <Stack
               direction="horizontal"
               style={{ justifyContent: "space-between" }}
             >
               <div>
-                <Card.Title
-                  style={{ margin: "4px 0" }}
-                  as={Link}
-                  to={`/art/${art._id}`}
-                >
-                  {art.title}
-                </Card.Title>
+                <Card.Title style={{ margin: "4px 0" }}>{art.title}</Card.Title>
                 <Card.Text as="span" className="d-flex align-items-center">
                   <span>By</span>
                   &nbsp;
@@ -92,14 +85,14 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
                       onLikeClick(art);
                     }}
                     title={userLiked ? "Unlike" : "Like"}
-                    className="p-2 bg-white"
+                    className="p-2 bg-white elevated"
                   />
                   {fullPage ? (
                     <IconButton
                       icon="chat-left-text"
                       onClick={onToggleShowComments}
                       title="Show Comments"
-                      className="p-2 bg-white"
+                      className="p-2 bg-white elevated"
                     />
                   ) : (
                     <></>

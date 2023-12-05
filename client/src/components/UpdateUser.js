@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Form, Button, Card, Alert } from "react-bootstrap";
 import { GENDERS } from "../constants";
 import { updateUserApi } from "../api/user"; // Your API call
@@ -248,6 +248,9 @@ const UpdateUser = () => {
             className="w-100 mt-3"
           >
             Update Profile
+          </Button>
+          <Button variant="warning" className="w-100 mt-3" as={Link} to="/account">
+            Cancel
           </Button>
         </Form>
       </Card.Body>

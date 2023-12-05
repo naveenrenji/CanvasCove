@@ -11,6 +11,21 @@ $light: #efefef;
 
 @import "~bootstrap/scss/bootstrap";
 
+:root {
+  --bs-body-font-family: league-spartan, playfair-display,
+    var(--bs-font-sans-serif);
+  --bs-body-font-size: 1.25rem;
+  --bs-nav-link-font-size: 1.25rem;
+}
+
+.btn {
+  --bs-btn-font-size: 1.25rem;
+}
+
+.form-control {
+  font-size: 1.25rem;
+}
+
 .btn-danger {
   --bs-btn-color: #fff;
 }
@@ -34,5 +49,22 @@ body {
 .card-hover-overlay:hover .card-img-overlay {
   visibility: visible;
   opacity: 1;
-  background-color: rgba(216, 217, 218, 0.95);
+  background-color: rgba(10, 25, 49, 0.4);
+}
+
+.elevated {
+  box-shadow: 0 4px 8px 0 rgba(10, 25, 49, 0.6);
+  transition: 0.3s;
+}
+
+.elevated:hover {
+  box-shadow: 0 8px 16px 0 rgba(10, 25, 49, 0.6);
+}
+
+.main-navbar {
+  .nav-link {
+    &.active {
+      text-decoration: underline;
+    }
+  }
 }

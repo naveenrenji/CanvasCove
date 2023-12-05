@@ -12,12 +12,20 @@ export const INTERACTION_TYPES = {
 
 export const NAME_LENGTHS = {
   MIN: 3,
-  MAX: 20
+  MAX: 20,
 };
 
 export const AGE_DATE_RANGE = {
-  MIN: new Date((new Date()).getFullYear() - 75, (new Date()).getMonth(), (new Date()).getDate()),
-  MAX: new Date((new Date()).getFullYear() - 15, (new Date()).getMonth(), (new Date()).getDate())
+  MIN: new Date(
+    new Date().getFullYear() - 75,
+    new Date().getMonth(),
+    new Date().getDate()
+  ),
+  MAX: new Date(
+    new Date().getFullYear() - 15,
+    new Date().getMonth(),
+    new Date().getDate()
+  ),
 };
 
 export const USER_ROLES = {
@@ -36,4 +44,9 @@ export const ART_TYPES = {
 export const ART_VISIBILITY = {
   PUBLIC: "Public",
   PRIVATE: "Private",
+};
+
+export const ART_TABS = {
+  LIKED_ART: "liked-art",
+  CREATED_ART: "created-art",
 };

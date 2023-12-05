@@ -2,12 +2,11 @@ import React from "react";
 import { Alert, Button, Col, Container, Nav, Row } from "react-bootstrap";
 import useAuth from "../../useAuth";
 import { artAPI, userApi } from "../../api";
-import { INTERACTION_TYPES, USER_ROLES } from "../../constants";
+import { ART_TABS, INTERACTION_TYPES, USER_ROLES } from "../../constants";
 import { Link } from "react-router-dom";
 import { ArtCardPlaceholder, OverlayArtCard } from "./index";
 
-const ArtTabs = ({ user }) => {
-  console.log(user);
+const ArtTabs = ({ user, defaultTab = ART_TABS.LIKED_ART }) => {
   const auth = useAuth();
   const isCurrentUser = auth?.user?._id === user._id;
   const isCurrentUserArtist = auth?.user?.role === USER_ROLES.ARTIST;
@@ -19,7 +18,7 @@ const ArtTabs = ({ user }) => {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
   const [alertError, setAlertError] = React.useState(null);
-  const [currentTab, setCurrentTab] = React.useState("liked-art");
+  const [currentTab, setCurrentTab] = React.useState(defaultTab || ART_TABS.LIKED_ART);
 
   const handleSelect = (eventKey) => {
     setCurrentTab(eventKey);
@@ -88,11 +87,11 @@ const ArtTabs = ({ user }) => {
       <Container className="d-flex justify-content-between">
         <Nav variant="underline" activeKey={currentTab} onSelect={handleSelect}>
           <Nav.Item>
-            <Nav.Link eventKey="liked-art">{prefix} Liked Art</Nav.Link>
+            <Nav.Link eventKey={ART_TABS.LIKED_ART}>{prefix} Liked Art</Nav.Link>
           </Nav.Item>
           <Nav.Item>
             <Nav.Link
-              eventKey="created-art"
+              eventKey={ART_TABS.CREATED_ART}
               disabled={isCurrentUser ? !isCurrentUserArtist : !isUserArtist}
             >
               {prefix} Art

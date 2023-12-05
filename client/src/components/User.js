@@ -4,6 +4,7 @@ import { Container } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { userApi } from "../api";
 import { Loader } from "./common";
+import { ART_TABS, USER_ROLES } from "../constants";
 
 const User = () => {
   const { id } = useParams();
@@ -32,8 +33,17 @@ const User = () => {
     <Container fluid="md">
       {loading && <Loader />}
       {error && <p>{error}</p>}
-      {user && <UserProfile user={user} />}
-      {user && <ArtTabs user={user} />}
+      {user && <UserProfile user={user} onUserChange={setUser} />}
+      {user && (
+        <ArtTabs
+          user={user}
+          defaultTab={
+            user.role === USER_ROLES.ARTIST
+              ? ART_TABS.CREATED_ART
+              : ART_TABS.LIKED_ART
+          }
+        />
+      )}
     </Container>
   );
 };

@@ -29,7 +29,8 @@ const ThreeDotToggle = React.forwardRef(({ children, onClick }, ref) => (
 const ArtCard = ({ art, onArtChange, onLikeClick }) => {
   const auth = useAuth();
   const isArtist = auth?.user?.role === USER_ROLES.ARTIST;
-  const isOwner = isArtist && auth?.user?._id === art?.artist?._id;
+  const isCurrentUser = auth?.user?._id === art?.artist?._id;
+  const isOwner = isArtist && isCurrentUser;
 
   const [showComments, setShowComments] = React.useState(false);
   const [copyBtn, setCopyBtn] = React.useState({
@@ -117,26 +118,29 @@ const ArtCard = ({ art, onArtChange, onLikeClick }) => {
               />
               {copyBtn.text}
             </Dropdown.Item>
-            <Dropdown.Item onClick={changeFollowStatus}>
-              <Icon
-                color="black"
-                icon={
-                  "person-fill-" + (isFollowedByCurrentUser ? "dash" : "add")
-                }
-                style={{ marginRight: "0.5rem" }}
-              />
-              {isFollowedByCurrentUser ? "Unfollow" : "Follow"}
-            </Dropdown.Item>
-            {isOwner ? (
-              <Dropdown.Item as={Link} to={`/art/${art._id}/edit`}>
+            {isCurrentUser ? (
+              isOwner ? (
+                <Dropdown.Item as={Link} to={`/art/${art._id}/edit`}>
+                  <Icon
+                    color="black"
+                    icon="pencil-fill"
+                    style={{ marginRight: "0.5rem" }}
+                  />
+                  Edit
+                </Dropdown.Item>
+              ) : null
+            ) : (
+              <Dropdown.Item onClick={changeFollowStatus}>
                 <Icon
                   color="black"
-                  icon="pencil-fill"
+                  icon={
+                    "person-fill-" + (isFollowedByCurrentUser ? "dash" : "add")
+                  }
                   style={{ marginRight: "0.5rem" }}
                 />
-                Edit
+                {isFollowedByCurrentUser ? "Unfollow" : "Follow"}
               </Dropdown.Item>
-            ) : null}
+            )}
           </Dropdown.Menu>
         </Dropdown>
       </Card.Header>

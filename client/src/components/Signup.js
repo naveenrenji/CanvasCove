@@ -106,11 +106,11 @@ const Signup = () => {
                 .map((image) => image.file);
 
             const imagesToAddCount = imagesToAdd.length;
+            if (imagesToAddCount > 0) {
+                await userApi.uploadImageApi(res._id, imagesToAdd[0], { accesstoken: res.accesstoken  });
+            }
 
             await auth.signIn(res?.accesstoken, async () => {
-                if (imagesToAddCount > 0) {
-                    await userApi.uploadImageApi(res._id, imagesToAdd[0]);
-                }
                 setLoading(false);
                 navigate("/home", {
                   replace: true,
@@ -399,6 +399,14 @@ const Signup = () => {
                 ""
             )}
             Sign Me Up
+        </Button>
+        <Button
+            variant="link"
+            onClick={() => navigate("/login")}
+            style={{ width: '100%' }}
+            className="mt-3"
+        >
+            Already have an account? Login
         </Button>
     </Form>
 </Card>

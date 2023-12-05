@@ -47,7 +47,7 @@ export const getUser = async (userId) => {
   return response?.data?.user || {};
 };
 
-export const uploadImageApi = async (userId, image) => {
+export const uploadImageApi = async (userId, image, headers = {}) => {
   const formData = new FormData();
   formData.append("image", image);
 
@@ -57,6 +57,7 @@ export const uploadImageApi = async (userId, image) => {
     {
       headers: {
         "Content-Type": "multipart/form-data",
+        ...headers,
       },
     }
   );

@@ -249,6 +249,8 @@ const UserSchema = new Schema(
               displayName: 1,
               images: 1,
               bio: 1,
+              dob: 1,
+              role: 1,
               followersCount: 1,
               followingCount: 1,
               isFollowedByCurrentUser: 1,

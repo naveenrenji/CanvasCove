@@ -212,6 +212,10 @@ export const updateFollowingStatus = async (currentUser, userId) => {
     throw { status: 400, message: "Please provide a valid user id!" };
   }
 
+  if (currentUser._id.toString() === userId.toString()) {
+    throw { status: 400, message: "You cannot follow yourself!" };
+  }
+
   let user;
 
   try {
@@ -329,10 +333,11 @@ export const getFollowingUsers = async (currentUser, userId) => {
 
 export const getFollowers = async (currentUser, userId) => {
   try {
+    const user = await User.findById(userId);
     const users = await User.aggregate([
       {
         $match: {
-          _id: new mongoose.Types.ObjectId(userId.toString()),
+          _id: user.followers,
         },
       },
       {

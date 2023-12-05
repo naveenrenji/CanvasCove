@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, Container, Row, Col } from 'react-bootstrap';
+import { Button, Card, Container, Row, Col, Stack, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { defaultArtistProfile, defaultConnoisseurProfile } from '../../assets';
 
@@ -7,6 +7,7 @@ import useAuth from '../../useAuth';
 import { userApi } from '../../api';
 import { USER_ROLES } from '../../constants';
 import UserImage from './UserImage';
+import { formatDate } from '../../helpers';
 
 const UserProfile = ({ user, onUserChange }) => {
     const defaultProfilePicture = user.role === USER_ROLES.ARTIST ? defaultArtistProfile : defaultConnoisseurProfile;
@@ -124,13 +125,23 @@ const UserProfile = ({ user, onUserChange }) => {
                         />
                         </Col>
                         <Col sm={12} md={8}>
-                            <h2>{user.displayName}</h2>
+                            <Stack direction="horizontal" gap={2}>
+                                <h2>{user.displayName}</h2>
+                                {user.role === USER_ROLES.ARTIST && (
+                                    <Badge pill bg="secondary">
+                                        ARTIST
+                                    </Badge>
+                                )}
+                            </Stack>
                             <p><strong>Name:</strong> {user.firstName} {user.lastName}</p>
-                            <p><strong>Date of Birth:</strong> {user.dateOfBirth}</p>
+                            <p><strong>Date of Birth:</strong> {formatDate(new Date(user.dob))}</p>
                             <p><strong>Followers:</strong> {user.followersCount}</p>
-                            <p>{user.bio}</p>
+                            <p><strong>Bio:</strong> {user.bio ?? "--NA--"}</p>
                             {isCurrentUser ? (
-                                <Button variant="primary" as={Link} to="/account/edit">Edit</Button>
+                                <Stack direction="horizontal" gap={2}>
+                                    <Button variant="primary" as={Link} to="/account/edit">Edit</Button>
+                                    <Button variant="primary" as={Link} to={`/users/${user?._id}`}>View My Page</Button>
+                                </Stack>
                             ) : (
                                 <Button variant="primary" onClick={changeFollowStatus}>{user.isFollowedByCurrentUser ? "Unfollow" : "+ Follow" }</Button>
                             )}

@@ -13,11 +13,28 @@ const Layout = () => {
     auth.signOut(() => navigate("/"));
   };
 
+  // check if this page is welcome page
+  const isWelcomePage = window.location.pathname === "/welcome";
+
+  const isNavActive = (path) => {
+    return window.location.pathname.startsWith(path);
+  };
+
   return (
     <div style={{ width: "100vw", height: "100vh", padding: 0 }}>
-      <Navbar expand="sm" bg="primary" style={{ width: "100vw" }}>
+      <Navbar expand="sm" bg="primary" className="main-navbar" style={{ width: "100vw" }}>
         <Container fluid="md">
-          <Navbar.Brand as={Link} to="/welcome" style={{ color: "#EFEFEF" }}>
+          <Navbar.Brand
+            as={Link}
+            to="/welcome"
+            style={{
+              color: "#EFEFEF",
+              fontFamily: "playfair-italic",
+              fontSize: "2rem",
+              position: "absolute",
+              // transform: "rotate(-10deg)",
+            }}
+          >
             Canvas Cove
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="offcanvasNavbar-expand-sm" />
@@ -35,23 +52,30 @@ const Layout = () => {
               <Nav className="justify-content-end flex-grow-1 pe-3">
                 {auth.isLoggedIn ? (
                   <>
-                    <Nav.Link as={Link} to="/home" style={{ color: "#EFEFEF" }}>
+                    <Nav.Link
+                      as={Link}
+                      to="/home"
+                      style={{ color: "#EFEFEF" }}
+                      active={isNavActive("/home")}
+                    >
                       Home
                     </Nav.Link>
                     <Nav.Link
                       as={Link}
                       to="/explore"
                       style={{ color: "#EFEFEF" }}
+                      active={isNavActive("/explore")}
                     >
                       Explore
                     </Nav.Link>
-                    <Nav.Link as={Link} to="/art" style={{ color: "#EFEFEF" }}>
+                    <Nav.Link as={Link} to="/art" style={{ color: "#EFEFEF" }} active={isNavActive("/art")}>
                       Art
                     </Nav.Link>
                     <Nav.Link
                       as={Link}
                       to="/account"
                       style={{ color: "#EFEFEF" }}
+                      active={isNavActive("/account")}
                     >
                       Account
                     </Nav.Link>
@@ -85,9 +109,13 @@ const Layout = () => {
       <Container
         fluid
         style={{
-          height: "calc(100vh - 56px)",
-          paddingTop: "56px",
-          paddingBottom: "56px",
+          height: "calc(100vh - 62px)",
+          ...(isWelcomePage
+            ? { padding: 0 }
+            : {
+                paddingTop: "56px",
+                paddingBottom: "56px",
+              }),
           overflow: "auto",
         }}
         // className="d-flex justify-content-center"
