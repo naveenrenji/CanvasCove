@@ -37,6 +37,10 @@ const Welcome = () => {
                 <Row className="justify-content-md-center">
                     <Col md={12} className="text-center">
                         <h2>Welcome to CanvasCove!</h2>
+                        <span>A dynamic hub connecting art enthusiasts with creators,</span><br />
+                        <span>offering a vibrant platform to explore art, artist bios,</span><br />
+                        <span>portfolios, and stay updated with the</span><br />
+                        <span>latest in the art world.</span>
                     </Col>
                 </Row>
             </Container>
