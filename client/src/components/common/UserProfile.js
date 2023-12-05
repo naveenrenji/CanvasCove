@@ -125,8 +125,8 @@ const UserProfile = ({ user, onUserChange }) => {
                         />
                         </Col>
                         <Col sm={12} md={8}>
-                            <Stack direction="horizontal" gap={2}>
-                                <h2>{user.displayName}</h2>
+                            <Stack direction="horizontal" gap={2} className="mb-2 align-items-center">
+                                <h2 className="m-0">{user.displayName}</h2>
                                 {user.role === USER_ROLES.ARTIST && (
                                     <Badge pill bg="secondary">
                                         ARTIST

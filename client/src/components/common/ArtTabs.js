@@ -1,5 +1,14 @@
 import React from "react";
-import { Alert, Button, Col, Container, Nav, Row } from "react-bootstrap";
+import {
+  Alert,
+  Button,
+  Col,
+  Container,
+  Nav,
+  OverlayTrigger,
+  Row,
+  Tooltip,
+} from "react-bootstrap";
 import useAuth from "../../useAuth";
 import { artAPI, userApi } from "../../api";
 import { ART_TABS, INTERACTION_TYPES, USER_ROLES } from "../../constants";
@@ -18,7 +27,9 @@ const ArtTabs = ({ user, defaultTab = ART_TABS.LIKED_ART }) => {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
   const [alertError, setAlertError] = React.useState(null);
-  const [currentTab, setCurrentTab] = React.useState(defaultTab || ART_TABS.LIKED_ART);
+  const [currentTab, setCurrentTab] = React.useState(
+    defaultTab || ART_TABS.LIKED_ART
+  );
 
   const handleSelect = (eventKey) => {
     setCurrentTab(eventKey);
@@ -87,16 +98,27 @@ const ArtTabs = ({ user, defaultTab = ART_TABS.LIKED_ART }) => {
       <Container className="d-flex justify-content-between">
         <Nav variant="underline" activeKey={currentTab} onSelect={handleSelect}>
           <Nav.Item>
-            <Nav.Link eventKey={ART_TABS.LIKED_ART}>{prefix} Liked Art</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link
-              eventKey={ART_TABS.CREATED_ART}
-              disabled={isCurrentUser ? !isCurrentUserArtist : !isUserArtist}
-            >
-              {prefix} Art
+            <Nav.Link eventKey={ART_TABS.LIKED_ART}>
+              {prefix} Liked Art
             </Nav.Link>
           </Nav.Item>
+
+          {(isCurrentUser ? !isCurrentUserArtist : !isUserArtist) ? (
+            <OverlayTrigger
+              placement="right"
+              overlay={<Tooltip>Need to be artist to access this.</Tooltip>}
+            >
+              <Nav.Item>
+                <Nav.Link eventKey={ART_TABS.CREATED_ART} disabled>
+                  {prefix} Art
+                </Nav.Link>
+              </Nav.Item>
+            </OverlayTrigger>
+          ) : (
+            <Nav.Item>
+              <Nav.Link eventKey={ART_TABS.CREATED_ART}>{prefix} Art</Nav.Link>
+            </Nav.Item>
+          )}
         </Nav>
         {isCurrentUser && isCurrentUserArtist ? (
           <Button as={Link} to="/art/create">
@@ -108,7 +130,14 @@ const ArtTabs = ({ user, defaultTab = ART_TABS.LIKED_ART }) => {
         {loading ? (
           <Row>
             {[1, 2, 3].map((art) => (
-              <Col id={art} key={art._id} xs={12} md={6} lg={4} className="mb-4">
+              <Col
+                id={art}
+                key={art._id}
+                xs={12}
+                md={6}
+                lg={4}
+                className="mb-4"
+              >
                 <ArtCardPlaceholder />
               </Col>
             ))}
@@ -118,7 +147,14 @@ const ArtTabs = ({ user, defaultTab = ART_TABS.LIKED_ART }) => {
         ) : artList?.length ? (
           <Row>
             {artList.map((art) => (
-              <Col id={art._id} key={art._id} xs={12} md={6} lg={4} className="mb-4">
+              <Col
+                id={art._id}
+                key={art._id}
+                xs={12}
+                md={6}
+                lg={4}
+                className="mb-4"
+              >
                 <OverlayArtCard
                   art={art}
                   onArtChange={handleArtChange}

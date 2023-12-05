@@ -1,10 +1,11 @@
 import React from "react";
 import Card from "react-bootstrap/Card";
 import { useNavigate } from "react-router-dom";
-import { Stack } from "react-bootstrap";
+import { Button, Stack } from "react-bootstrap";
 
 import { INTERACTION_TYPES } from "../../constants";
 import { PlaceholderImage } from "../../assets";
+import { userApi } from "../../api";
 
 import IconButton from "./IconButton";
 import CommentsModal from "./CommentsModal";
@@ -26,6 +27,17 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
   const totalViews = React.useMemo(() => {
     return art.likesCount || 0 + art.viewsCount || 0;
   }, [art.likesCount, art.viewsCount]);
+
+  const changeFollowStatus = async () => {
+    try {
+      const updatedArtist = await userApi.updateFollowStatusApi(
+        art?.artist?._id
+      );
+      onArtChange({ ...art, artist: updatedArtist });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Card className="text-white card-hover-overlay">
@@ -73,6 +85,13 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
                   <span>By</span>
                   &nbsp;
                   {art.artist?.displayName}
+                  {art.artist?.isFollowedByCurrentUser ? (
+                    <></>
+                  ) : (
+                    <Button variant="link" onClick={changeFollowStatus}>
+                      Follow
+                    </Button>
+                  )}
                 </Card.Text>
               </div>
               <div>
