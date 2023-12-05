@@ -9,21 +9,28 @@ import {
   validatePassword,
   validateConfirmPassword,
 } from "../helpers"; // Import validation functions
+import { ImageModal, UserImage } from "./common";
+import { userApi } from "../api";
 
 const UpdateUser = () => {
+  const { user: currentUser, refreshCurrentUser } = useAuth(); // Assuming useAuth provides currentUser
+
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    bio: "",
-    gender: "",
+    firstName: currentUser?.firstName || "",
+    lastName: currentUser?.lastName || "",
+    bio: currentUser?.bio || "",
+    gender: currentUser?.gender || "",
     currentPassword: "",
     newPassword: "",
     confirmNewPassword: "",
   });
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState(""); // Separate state for form-wide errors
+  const [images, setImages] = useState([...currentUser?.images]);
+  const [showImagesModal, setShowImagesModal] = useState(false);
   const navigate = useNavigate();
-  const { user: currentUser, refreshCurrentUser } = useAuth(); // Assuming useAuth provides currentUser
+
+  const handleToggleImagesModal = () => setShowImagesModal((prev) => !prev);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,6 +66,25 @@ const UpdateUser = () => {
     }
     try {
       await updateUserApi(currentUser._id, formData);
+      const imagesToAdd = images
+        .filter(({ _id, shouldDelete }) => !_id && !shouldDelete)
+        .map((image) => image.file);
+
+      const imagesToAddCount = imagesToAdd.length;
+
+      const imagesToDelete = images
+        .filter(({ _id, shouldDelete }) => _id && shouldDelete)
+        .map((image) => image._id);
+
+      const totalImagesCount = imagesToAddCount + imagesToDelete.length;
+
+      if (totalImagesCount) {
+        for (let i = 0; i < imagesToAddCount; i++) {
+          await userApi.uploadImageApi(currentUser._id, imagesToAdd[i]);
+        }
+
+        await userApi.deleteImagesApi(currentUser._id, imagesToDelete);
+      }
       await refreshCurrentUser();
       alert("Updated Successfully");
       navigate("/account");
@@ -72,8 +98,30 @@ const UpdateUser = () => {
   return (
     <Card className="mx-auto my-5" style={{ maxWidth: "500px" }}>
       <Card.Body>
+        {showImagesModal && (
+          <ImageModal
+            show={showImagesModal}
+            onClose={handleToggleImagesModal}
+            images={images}
+            imageableId={currentUser._id}
+            imageableType="User"
+            editable
+            onUpdate={(updatedImages) => {
+              setImages(updatedImages);
+              handleToggleImagesModal();
+            }}
+          />
+        )}
         <h2 className="text-center mb-4">Update Profile</h2>
         <Form onSubmit={handleSubmit}>
+          <div className="d-flex justify-content-center mb-3">
+            <UserImage
+              canUpload
+              images={images}
+              user={currentUser}
+              onClick={handleToggleImagesModal}
+            />
+          </div>
           <Form.Group className="mb-3 form-group" controlId="formFirstName">
             <Form.Label>First Name</Form.Label>
             <Form.Control

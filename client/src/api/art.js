@@ -55,7 +55,7 @@ export const deleteArtApi = async (artId) => {
 
 export const uploadImageApi = async (artId, image, onUploadProgress) => {
   const formData = new FormData();
-  formData.append("file", image);
+  formData.append("image", image);
 
   const res = await httpInstance.post(`/images/Art/${artId}/upload`, formData, {
     headers: {

@@ -1,11 +1,12 @@
 import React from 'react';
-import { Button, Card, Container, Row, Col, Image } from 'react-bootstrap';
+import { Button, Card, Container, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { defaultArtistProfile, defaultConnoisseurProfile } from '../../assets';
 
 import useAuth from '../../useAuth';
 import { userApi } from '../../api';
 import { USER_ROLES } from '../../constants';
+import UserImage from './UserImage';
 
 const UserProfile = ({ user, onUserChange }) => {
     const defaultProfilePicture = user.role === USER_ROLES.ARTIST ? defaultArtistProfile : defaultConnoisseurProfile;
@@ -116,10 +117,13 @@ const UserProfile = ({ user, onUserChange }) => {
             <Card>
                 <Card.Body>
                     <Row>
-                        <Col md={4} className="text-center">
-                        <Image src={user.images?.[0] || defaultProfilePicture} alt={user.displayName} roundedCircle fluid style={{ width: '250px', height: '250px', objectFit: 'cover' }} />
+                        <Col sm={12} md={4} className="text-center d-flex align-items-center justify-content-center">
+                        <UserImage
+                            images={user?.images?.length ? user?.images : [{ url: defaultProfilePicture }]}
+                            user={user}
+                        />
                         </Col>
-                        <Col md={8}>
+                        <Col sm={12} md={8}>
                             <h2>{user.displayName}</h2>
                             <p><strong>Name:</strong> {user.firstName} {user.lastName}</p>
                             <p><strong>Date of Birth:</strong> {user.dateOfBirth}</p>

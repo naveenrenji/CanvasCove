@@ -10,9 +10,10 @@ import {
     validatePassword,
     validateConfirmPassword
 } from "../helpers";
-import { Form, Button, Card, Alert } from 'react-bootstrap';
-import { authAPI } from "../api";
+import { Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
+import { authAPI, userApi } from "../api";
 import useAuth from "../useAuth";
+import { ImageModal, UserImage } from "./common";
 
 
 const Signup = () => {
@@ -60,6 +61,11 @@ const Signup = () => {
         error: ""
     });
     const [error, setError] = useState();
+    const [images, setImages] = useState([]);
+    const [showImagesModal, setShowImagesModal] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const handleToggleImagesModal = () => setShowImagesModal((prev) => !prev);
 
     const isFormInvalid = () => {
         if (!displayName.value || !firstName.value || !lastName.value ||
@@ -82,6 +88,7 @@ const Signup = () => {
         setError();
 
         try {
+            setLoading(true);
             const res = await authAPI.signUp(
                 displayName.value.trim(),
                 firstName.value.trim(),
@@ -93,12 +100,24 @@ const Signup = () => {
                 gender.value,
                 password.value,
             );
-            await auth.signIn(res?.accesstoken, () => {
+            
+            const imagesToAdd = images
+                .filter(({ _id, shouldDelete }) => !_id && !shouldDelete)
+                .map((image) => image.file);
+
+            const imagesToAddCount = imagesToAdd.length;
+
+            await auth.signIn(res?.accesstoken, async () => {
+                if (imagesToAddCount > 0) {
+                    await userApi.uploadImageApi(res._id, imagesToAdd[0]);
+                }
+                setLoading(false);
                 navigate("/home", {
                   replace: true,
                 });
             });
         } catch (error) {
+            setLoading(false);
             setError(
                 error?.response?.data?.error ||
                 error?.message ||
@@ -110,6 +129,27 @@ const Signup = () => {
     return (
     <Card className="signup-form">
         <h2 className="signup-header">Sign Up</h2>
+        <div className="d-flex justify-content-center mb-3">
+            {showImagesModal && (
+                <ImageModal
+                    show={showImagesModal}
+                    onClose={handleToggleImagesModal}
+                    images={images}
+                    imageableType="User"
+                    editable
+                    onUpdate={(updatedImages) => {
+                        setImages(updatedImages);
+                        handleToggleImagesModal();
+                    }}
+                />
+            )}
+            <UserImage
+                canUpload
+                images={images}
+                user={{ displayName: displayName?.value }}
+                onClick={handleToggleImagesModal}
+            />
+        </div>
         <Form
             onChange={() => setError()}
         >
@@ -347,10 +387,17 @@ const Signup = () => {
         <Button
             type="submit"
             variant="primary"
-            disabled={isFormInvalid()}
+            disabled={isFormInvalid() || loading}
             onClick={handleSubmit}
             style={{ width: '100%' }}
         >
+            {loading ? (
+                <Spinner animation="border" role="status" size="sm">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+            ) : (
+                ""
+            )}
             Sign Me Up
         </Button>
     </Form>

@@ -3,21 +3,18 @@ import {
     Nav,
     Row,
     Col,
-    Card,
     Alert,
     Tooltip,
     Container,
     OverlayTrigger,
 } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
 
-import { Loader } from "./common";
+import { Loader, OverlayArtCard, UserItem } from "./common";
 import SearchBar from "./common/SearchBar";
 import { userApi, artAPI } from "../api";
 import { USER_ROLES } from "../constants";
 
 const Explore = () => {
-    const navigate = useNavigate();
     const [error, setError] = useState("");
     const [list, setList] = useState([]);
     const [allArtists, setAllArtists] = useState([]);
@@ -91,6 +88,35 @@ const Explore = () => {
         setCurrentTab(eventKey);
     };
 
+    const handleArtChange = (art) => {
+        setList((prevList) => {
+            const updatedList = prevList.map((_art) => {
+                if (_art._id === art._id) {
+                    return art;
+                }
+                return _art;
+            });
+            return updatedList;
+        });
+    }
+
+    const handleLikeClick = async (art) => {
+        try {
+            const updatedArt = await artAPI.interactWithArtApi(art._id, "like");
+            setList((prevList) => {
+                const updatedList = prevList.map((_art) => {
+                    if (_art._id === updatedArt._id) {
+                        return updatedArt;
+                    }
+                    return _art;
+                });
+                return updatedList;
+            });
+        } catch (error) {
+            console.log(error?.message);
+        }
+    }
+
     return (
         <Container fluid="md">
             {loading ? <Loader /> : null}
@@ -122,48 +148,21 @@ const Explore = () => {
                               <Col key={_entity._id} xs={12} md={6} lg={4} className="mb-4">
                                 {
                                     currentTab === "search-art" ? (
-                                    <OverlayTrigger
-                                        placement="bottom"
-                                        overlay={
-                                          <Tooltip id={`art-${_entity._id}`}>
-                                            {_entity.title}, By <strong>{_entity?.artist?.displayName}</strong>
-                                          </Tooltip>
-                                        }
-                                      >
-                                        <Card
-                                          onClick={() => {
-                                            navigate(`/art/${_entity?._id}`);
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                        >
-                                          <Card.Body>
-                                            <Card.Img src={_entity?.images?.[0]?.url} alt={_entity?.title} />
-                                          </Card.Body>
-                                        </Card>
-                                      </OverlayTrigger>
+                                        <OverlayArtCard
+                                            art={_entity}
+                                            onArtChange={handleArtChange}
+                                            onLikeClick={handleLikeClick}
+                                        />
                                     ) : (
                                         <OverlayTrigger
                                             placement="bottom"
                                             overlay={
-                                              <Tooltip id={`/users/${_entity._id}`}>
+                                              <Tooltip id={`/users/${_entity?._id}`}>
                                                 View more about {_entity?.firstName} {_entity?.lastName}
                                               </Tooltip>
                                             }
                                         >
-                                            <Card
-                                                onClick={() => {
-                                                    navigate(`/users/${_entity?._id}`);
-                                                }}
-                                                style={{ cursor: "pointer" }}
-                                            >
-                                                <Card.Body>
-                                                    {/* Show displayName, firstName, and LastName */}
-                                                    <Card.Title>{_entity.displayName}</Card.Title>
-                                                    <Card.Text>
-                                                        {_entity?.firstName} {_entity?.lastName}
-                                                    </Card.Text>
-                                                </Card.Body>
-                                            </Card>
+                                            <UserItem user={_entity} />
                                         </OverlayTrigger>
                                     )
                                 }

@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { ART_TYPES, ART_VISIBILITY } from "../../constants";
 import { artAPI } from "../../api";
 import Loader from "./Loader";
+import ImageModal from "./ImageModal";
 
 /**
  * TODO: Handle image upload and delete
@@ -61,13 +62,12 @@ const ArtForm = ({ art = {}, onSuccess }) => {
   });
 
   const [images, setImages] = React.useState({
-    value: [],
+    value: art.images || [],
     error: "",
   });
+  const [showImagesModal, setShowImagesModal] = React.useState(false);
 
-  const [imagesMarkedForDeletion, setImagesMarkedForDeletion] = React.useState(
-    []
-  );
+  const handleToggleImagesModal = () => setShowImagesModal((prev) => !prev);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -91,11 +91,17 @@ const ArtForm = ({ art = {}, onSuccess }) => {
         ? await artAPI.updateArtApi(art._id, data)
         : await artAPI.createArtApi(data);
 
-      const imagesCount = images.value?.length;
+      const imagesToAdd = images.value
+        .filter(({ _id, shouldDelete }) => !_id && !shouldDelete)
+        .map((image) => image.file);
 
-      const imagesToDelete = imagesMarkedForDeletion.map((image) => image._id);
+      const imagesToAddCount = imagesToAdd.length;
 
-      const totalImagesCount = imagesCount + imagesToDelete.length;
+      const imagesToDelete = images.value
+        .filter(({ _id, shouldDelete }) => _id && shouldDelete)
+        .map((image) => image._id);
+
+      const totalImagesCount = imagesToAddCount + imagesToDelete.length;
 
       if (totalImagesCount) {
         setProgressData({
@@ -104,20 +110,22 @@ const ArtForm = ({ art = {}, onSuccess }) => {
         });
 
         const uploadTotalProgress = Math.round(
-          (50 * imagesCount) / totalImagesCount
+          (50 * imagesToAddCount) / totalImagesCount
         );
 
-        for (let i = 0; i < imagesCount; i++) {
-          await artAPI.uploadImageApi(artRes._id, images.value[i], (event) => {
+        for (let i = 0; i < imagesToAddCount; i++) {
+          await artAPI.uploadImageApi(artRes._id, imagesToAdd[i], (event) => {
             const progress =
               50 +
               Math.round(
-                (uploadTotalProgress / imagesCount) *
+                (uploadTotalProgress / imagesToAddCount) *
                   (event.loaded / event.total)
               );
             setProgressData({
               progress,
-              progressText: `Uploading images... (${i + 1}/${imagesCount})`,
+              progressText: `Uploading images... (${
+                i + 1
+              }/${imagesToAddCount})`,
             });
           });
         }
@@ -215,17 +223,24 @@ const ArtForm = ({ art = {}, onSuccess }) => {
                 </FloatingLabel>
               </Col>
               <Col>
-                <FloatingLabel label="Images">
-                  <Form.Control
-                    name="images"
-                    type="file"
-                    multiple
-                    onChange={(event) => {
-                      event.target.files.length &&
-                        setImages({ value: event.target.files, error: "" });
+                {showImagesModal && (
+                  <ImageModal
+                    show={showImagesModal}
+                    onClose={handleToggleImagesModal}
+                    images={images.value}
+                    imageableId={art._id}
+                    imageableType="Art"
+                    onUpdate={(updatedImages) => {
+                      setImages({ value: updatedImages, error: "" });
+                      handleToggleImagesModal();
                     }}
+                    editable
+                    multiple
                   />
-                </FloatingLabel>
+                )}
+                <Button variant="primary" onClick={handleToggleImagesModal}>
+                  {images?.value?.length ? "Add/Update" : "Add"} Images
+                </Button>
               </Col>
             </Row>
 

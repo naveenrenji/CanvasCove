@@ -23,9 +23,11 @@ export const searchApi = async (payload) => {
   return response?.data?.users || [];
 };
 
-
 export const updateUserApi = async (userId, updateData) => {
-  const response = await httpInstance.put(`/users/${userId}/update`, updateData);
+  const response = await httpInstance.put(
+    `/users/${userId}/update`,
+    updateData
+  );
   return response.data;
 };
 
@@ -43,4 +45,29 @@ export const getFollowing = async (userId) => {
 export const getUser = async (userId) => {
   const response = await httpInstance.get(`/users/${userId}`);
   return response?.data?.user || {};
+};
+
+export const uploadImageApi = async (userId, image) => {
+  const formData = new FormData();
+  formData.append("image", image);
+
+  const res = await httpInstance.post(
+    `/images/User/${userId}/upload`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return res.data;
+};
+
+export const deleteImagesApi = async (userId, imageIds) => {
+  const res = await httpInstance.delete(`/images/User/${userId}/bulk-delete`, {
+    data: { imageIds },
+  });
+
+  return res.data;
 };

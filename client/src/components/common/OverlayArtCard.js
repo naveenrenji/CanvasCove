@@ -79,7 +79,7 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
                 <Card.Text as="span" className="d-flex align-items-center">
                   <span>By</span>
                   &nbsp;
-                  {art.artist.displayName}
+                  {art.artist?.displayName}
                 </Card.Text>
               </div>
               <div>

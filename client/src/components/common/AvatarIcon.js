@@ -6,6 +6,7 @@ const AvatarIcon = ({
   backgroundColor,
   color,
   style,
+  onClick,
 }) => {
   const avatarStyle = {
     width: size,
@@ -22,7 +23,7 @@ const AvatarIcon = ({
   };
 
   return (
-    <div style={avatarStyle}>
+    <div style={avatarStyle} onClick={onClick}>
       {displayName ? displayName.charAt(0).toUpperCase() : "?"}
     </div>
   );

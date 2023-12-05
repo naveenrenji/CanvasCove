@@ -45,7 +45,7 @@ authRouter.route("/sign-up").post(async (req, res) => {
     const user = await auth.signup(signupPayload);
     const accesstoken = user.generateToken();
 
-    res.json({ message: "User created successfully", accesstoken });
+    res.json({ message: "User created successfully", accesstoken, _id: user._id });
   } catch (error) {
     return res.status(error?.status || 500).json({ error: error?.message });
   }
