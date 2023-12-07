@@ -28,8 +28,10 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
     return art.likesCount || 0 + art.viewsCount || 0;
   }, [art.likesCount, art.viewsCount]);
 
-  const changeFollowStatus = async () => {
+  const changeFollowStatus = async (e) => {
     try {
+      e.preventDefault();
+      e.stopPropagation();
       const updatedArtist = await userApi.updateFollowStatusApi(
         art?.artist?._id
       );

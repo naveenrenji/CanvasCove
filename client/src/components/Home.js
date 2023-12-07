@@ -175,49 +175,58 @@ const Home = () => {
               className="bg-primary p-3"
               style={{ color: "white" }}
             />
-            {loading ? (
-              <ArtCardPlaceholder fullPage />
-            ) : feed.length ? (
-              feed.map((art, idx) => (
-                <OverlayArtCard
-                  key={idx}
-                  art={art}
-                  onLikeClick={handleLikeClick}
-                  onArtChange={handleArtChange}
-                  fullPage
-                />
-              ))
-            ) : (
-              <Alert variant="light" style={{ width: "100%" }}>
-                <Alert.Heading>
-                  {page !== 1 ? "That's all folks!" : "No art!"}
-                </Alert.Heading>
-                <hr />
-                <p>
-                  {page !== 1
-                    ? "Looks like your feed dried up. Try following more artists or wait for your favorites to upload more art."
-                    : "Looks like you need to do some more digging. Try exploring some art and following the artists you like."}
-                </p>
-                <hr />
-                <Stack gap={2} className="flex-xs-col flex-sm-row">
-                  <Button variant="outline-dark" onClick={getFeed}>
-                    Refresh Feed
-                  </Button>
-
-                  <Button variant="outline-dark" as={Link} to="/explore">
-                    Explore
-                  </Button>
-
-                  {page !== 1 ? (
-                    <Button variant="outline-dark" onClick={() => setPage(1)}>
-                      Go back to top
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {loading ? (
+                <ArtCardPlaceholder fullPage />
+              ) : feed.length ? (
+                feed.map((art, idx) => (
+                  <OverlayArtCard
+                    key={idx}
+                    art={art}
+                    onLikeClick={handleLikeClick}
+                    onArtChange={handleArtChange}
+                    fullPage
+                  />
+                ))
+              ) : (
+                <Alert variant="light" style={{ width: "100%" }}>
+                  <Alert.Heading>
+                    {page !== 1 ? "That's all folks!" : "No art!"}
+                  </Alert.Heading>
+                  <hr />
+                  <p>
+                    {page !== 1
+                      ? "Looks like your feed dried up. Try following more artists or wait for your favorites to upload more art."
+                      : "Looks like you need to do some more digging. Try exploring some art and following the artists you like."}
+                  </p>
+                  <hr />
+                  <Stack gap={2} className="flex-xs-col flex-sm-row">
+                    <Button variant="outline-dark" onClick={getFeed}>
+                      Refresh Feed
                     </Button>
-                  ) : (
-                    <></>
-                  )}
-                </Stack>
-              </Alert>
-            )}
+
+                    <Button variant="outline-dark" as={Link} to="/explore">
+                      Explore
+                    </Button>
+
+                    {page !== 1 ? (
+                      <Button variant="outline-dark" onClick={() => setPage(1)}>
+                        Go back to top
+                      </Button>
+                    ) : (
+                      <></>
+                    )}
+                  </Stack>
+                </Alert>
+              )}
+            </div>
 
             <IconButton
               icon="arrow-right"

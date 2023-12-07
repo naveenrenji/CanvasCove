@@ -6,6 +6,7 @@ import {
   validateGender,
   validateString,
 } from "../validators/helpers.js";
+import { ART_VISIBILITY } from "../constants.js";
 
 export const getUser = async (currentUser, userId) => {
   try {
@@ -38,7 +39,12 @@ export const getArtList = async (currentUser, userId) => {
 
   try {
     artList = await Art.withMetrics(currentUser, {
-      $match: { artist: new mongoose.Types.ObjectId(userId) },
+      $match: {
+        artist: new mongoose.Types.ObjectId(userId),
+        ...(currentUser._id.toString() !== userId.toString()
+          ? { visibility: ART_VISIBILITY.PUBLIC, isVisible: true }
+          : {}),
+      },
     });
   } catch (error) {
     throw { status: 400, message: error.toString() };
@@ -275,7 +281,7 @@ export const getFollowingUsers = async (currentUser, userId) => {
     const users = await User.aggregate([
       {
         $match: {
-          _id: user.following,
+          _id: { $in: user.following },
         },
       },
       {
@@ -337,7 +343,7 @@ export const getFollowers = async (currentUser, userId) => {
     const users = await User.aggregate([
       {
         $match: {
-          _id: user.followers,
+          _id:{ $in: user.followers },
         },
       },
       {

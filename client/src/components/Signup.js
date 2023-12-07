@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import "./styles.css";
-import { GENDERS, USER_ROLES, AGE_DATE_RANGE } from "../constants";
+import { GENDERS, USER_ROLES, AGE_DATE_RANGE, USER_ROLES_DISPLAY } from "../constants";
 import { 
     formatDate,
     validateName,
@@ -154,7 +154,7 @@ const Signup = () => {
             onChange={() => setError()}
         >
         <Form.Group className="mb-3 form-group" controlId="formBasicUsername">
-            <Form.Label>Display Name</Form.Label>
+            <Form.Label>Display Name*</Form.Label>
             <Form.Control
                 required
                 type="text"
@@ -175,7 +175,7 @@ const Signup = () => {
         </Form.Group>
 
         <Form.Group className="mb-3 form-group" controlId="formBasicUsername">
-            <Form.Label>First Name</Form.Label>
+            <Form.Label>First Name*</Form.Label>
             <Form.Control
                 required
                 type="text"
@@ -196,7 +196,7 @@ const Signup = () => {
         </Form.Group>
 
         <Form.Group className="mb-3 form-group" controlId="formBasicUsername">
-            <Form.Label>Last Name</Form.Label>
+            <Form.Label>Last Name*</Form.Label>
             <Form.Control
                 required
                 type="text"
@@ -217,7 +217,7 @@ const Signup = () => {
         </Form.Group>
 
         <Form.Group className="mb-3 form-group" controlId="formBasicEmail">
-            <Form.Label>Email address</Form.Label>
+            <Form.Label>Email address*</Form.Label>
             <Form.Control
                 required
                 type="email"
@@ -238,7 +238,7 @@ const Signup = () => {
         </Form.Group>
 
         <Form.Group className="mb-3 form-group" controlId="formGenderSelect">
-            <Form.Label>Gender</Form.Label>
+            <Form.Label>Gender*</Form.Label>
             <Form.Control
                 required
                 as="select"
@@ -265,7 +265,7 @@ const Signup = () => {
         </Form.Group>
 
         <Form.Group className="mb-3 form-group" controlId="formGenderSelect">
-            <Form.Label>Date of Birth</Form.Label>
+            <Form.Label>Date of Birth*</Form.Label>
             <Form.Control
                 required
                 type="date"
@@ -288,7 +288,7 @@ const Signup = () => {
         </Form.Group>
 
         <Form.Group className="mb-3 form-group" controlId="formRoleSelect">
-            <Form.Label>Role</Form.Label>
+            <Form.Label>Role*</Form.Label>
             <Form.Control
                 required
                 as="select"
@@ -303,9 +303,9 @@ const Signup = () => {
                 isInvalid={!!role.error}
             >
                 <option value="">Select role...</option>
-                {Object.values(USER_ROLES).map((role) => (
-                  <option value={role} key={role}>
-                    {role}
+                {Object.entries(USER_ROLES_DISPLAY).map(([value, display]) => (
+                  <option value={value} key={value}>
+                    {display}
                   </option>
                 ))}
             </Form.Control>
@@ -335,7 +335,7 @@ const Signup = () => {
         </Form.Group>
 
         <Form.Group className="mb-3 form-group" controlId="formBasicPassword">
-            <Form.Label>Password</Form.Label>
+            <Form.Label>Password*</Form.Label>
             <Form.Control
                 required
                 type="password"
@@ -356,7 +356,7 @@ const Signup = () => {
         </Form.Group>
 
         <Form.Group className="mb-3 form-group" controlId="formBasicConfirmPassword">
-            <Form.Label>Confirm Password</Form.Label>
+            <Form.Label>Confirm Password*</Form.Label>
             <Form.Control
                 required
                 type="password"
