@@ -249,7 +249,12 @@ const UpdateUser = () => {
           >
             Update Profile
           </Button>
-          <Button variant="warning" className="w-100 mt-3" as={Link} to="/account">
+          <Button
+            variant="warning"
+            className="w-100 mt-3"
+            as={Link}
+            to="/account"
+          >
             Cancel
           </Button>
         </Form>

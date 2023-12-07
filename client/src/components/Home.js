@@ -136,7 +136,10 @@ const Home = () => {
           {Object.values(PILLS).map((pill) => (
             <Button
               key={pill}
-              onClick={() => setSelectedPill(pill)}
+              onClick={() => {
+                setPage(1);
+                setSelectedPill(pill);
+              }}
               variant={
                 pill === selectedPill ? "outline-secondary" : "outline-primary"
               }

@@ -49,10 +49,10 @@ const AuthProvider = ({ children }) => {
 
   const signIn = useCallback(
     async (accesstoken, callback) => {
+      setIsLoggedIn(!!accesstoken);
       setToStorage(userAccessTokenKey, accesstoken);
       await getCurrentUser();
       await callback();
-      setIsLoggedIn(!!accesstoken);
     },
     [getCurrentUser]
   );
