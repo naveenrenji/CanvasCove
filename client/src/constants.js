@@ -33,6 +33,11 @@ export const USER_ROLES = {
   CONNOISSEUR: "Connoisseur",
 };
 
+export const USER_ROLES_DISPLAY = {
+  Artist: "Artist",
+  Connoisseur: "Enthusiast",
+};
+
 export const ART_TYPES = {
   PAINTING: "Painting",
   SCULPTURE: "Sculpture",
