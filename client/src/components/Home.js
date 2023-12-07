@@ -3,10 +3,10 @@ import { OverlayArtCard, ArtCardPlaceholder, IconButton } from "./common";
 import {
   Alert,
   Button,
-  Col,
+  // Col,
   Container,
   Row,
-  Spinner,
+  // Spinner,
   Stack,
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
@@ -27,10 +27,10 @@ const Home = () => {
   const [alertError, setAlertError] = React.useState(null);
   const [page, setPage] = React.useState(1);
 
-  const [onFireArt, setOnFireArt] = React.useState([]);
-  const [onFireArtError, setOnFireArtError] = React.useState(null);
-  const [onFireArtLoading, setOnFireArtLoading] = React.useState(true);
-  const [onFireArtPage, setOnFireArtPage] = React.useState(1);
+  // const [onFireArt, setOnFireArt] = React.useState([]);
+  // const [onFireArtError, setOnFireArtError] = React.useState(null);
+  // const [onFireArtLoading, setOnFireArtLoading] = React.useState(true);
+  // const [onFireArtPage, setOnFireArtPage] = React.useState(1);
 
   const getFeed = React.useCallback(async () => {
     try {
@@ -44,25 +44,25 @@ const Home = () => {
     }
   }, [page, selectedPill]);
 
-  const getOnFireArt = React.useCallback(async () => {
-    try {
-      setOnFireArtLoading(true);
-      const response = await artAPI.getOnFireArtApi(onFireArtPage);
-      setOnFireArt(response);
-    } catch (error) {
-      setOnFireArtError(error?.message);
-    } finally {
-      setOnFireArtLoading(false);
-    }
-  }, [onFireArtPage]);
+  // const getOnFireArt = React.useCallback(async () => {
+  //   try {
+  //     setOnFireArtLoading(true);
+  //     const response = await artAPI.getOnFireArtApi(onFireArtPage);
+  //     setOnFireArt(response);
+  //   } catch (error) {
+  //     setOnFireArtError(error?.message);
+  //   } finally {
+  //     setOnFireArtLoading(false);
+  //   }
+  // }, [onFireArtPage]);
 
   React.useEffect(() => {
     getFeed();
   }, [getFeed]);
 
-  React.useEffect(() => {
-    getOnFireArt();
-  }, [getOnFireArt]);
+  // React.useEffect(() => {
+  //   getOnFireArt();
+  // }, [getOnFireArt]);
 
   const handleLikeClick = async (art) => {
     try {
@@ -80,15 +80,15 @@ const Home = () => {
         return updatedFeed;
       });
 
-      setOnFireArt((prevOnFireArt) => {
-        const updatedOnFireArt = prevOnFireArt.map((art) => {
-          if (art._id === updatedArt._id) {
-            return updatedArt;
-          }
-          return art;
-        });
-        return updatedOnFireArt;
-      });
+      // setOnFireArt((prevOnFireArt) => {
+      //   const updatedOnFireArt = prevOnFireArt.map((art) => {
+      //     if (art._id === updatedArt._id) {
+      //       return updatedArt;
+      //     }
+      //     return art;
+      //   });
+      //   return updatedOnFireArt;
+      // });
     } catch (error) {
       setAlertError(error?.message);
     }
@@ -110,24 +110,24 @@ const Home = () => {
       });
       return updatedFeed;
     });
-    setOnFireArt((prevOnFireArt) => {
-      const updatedOnFireArt = prevOnFireArt.map((art) => {
-        if (art._id === updatedArt._id) {
-          return updatedArt;
-        }
-        return art;
-      });
-      return updatedOnFireArt;
-    });
+    // setOnFireArt((prevOnFireArt) => {
+    //   const updatedOnFireArt = prevOnFireArt.map((art) => {
+    //     if (art._id === updatedArt._id) {
+    //       return updatedArt;
+    //     }
+    //     return art;
+    //   });
+    //   return updatedOnFireArt;
+    // });
   };
 
-  const handleOnFireArtNextClick = () =>
-    onOnFireArtPageChange(onFireArtPage + 1);
-  const handleOnFireArtPrevClick = () =>
-    onOnFireArtPageChange(onFireArtPage - 1);
-  const onOnFireArtPageChange = async (newPage) => {
-    setOnFireArtPage(newPage);
-  };
+  // const handleOnFireArtNextClick = () =>
+  //   onOnFireArtPageChange(onFireArtPage + 1);
+  // const handleOnFireArtPrevClick = () =>
+  //   onOnFireArtPageChange(onFireArtPage - 1);
+  // const onOnFireArtPageChange = async (newPage) => {
+  //   setOnFireArtPage(newPage);
+  // };
 
   return (
     <>
