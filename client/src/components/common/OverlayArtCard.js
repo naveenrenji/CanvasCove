@@ -95,7 +95,7 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
                   <span>By</span>
                   &nbsp;
                   {art.artist?.displayName}
-                  {art.artist?.isFollowedByCurrentUser ? (
+                  {art.artist?.isFollowedByCurrentUser || isOwner ? (
                     <></>
                   ) : (
                     <Button variant="link" onClick={changeFollowStatus}>

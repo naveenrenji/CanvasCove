@@ -121,8 +121,10 @@ const Home = () => {
     });
   };
 
-  const handleOnFireArtNextClick = () => onOnFireArtPageChange(onFireArtPage + 1);
-  const handleOnFireArtPrevClick = () => onOnFireArtPageChange(onFireArtPage - 1);
+  const handleOnFireArtNextClick = () =>
+    onOnFireArtPageChange(onFireArtPage + 1);
+  const handleOnFireArtPrevClick = () =>
+    onOnFireArtPageChange(onFireArtPage - 1);
   const onOnFireArtPageChange = async (newPage) => {
     setOnFireArtPage(newPage);
   };
@@ -239,7 +241,7 @@ const Home = () => {
           </Stack>
         </Container>
       )}
-      <Container fluid="md" className="mt-4">
+      {/* <Container fluid="md" className="mt-4">
         <h3>Latest Artwork on 🔥</h3>
         <hr />
       </Container>
@@ -268,12 +270,22 @@ const Home = () => {
               <Row style={{ width: "100%" }}>
                 {onFireArt.map((art, idx) => (
                   <Col key={idx} xs={12} md={4} lg={3}>
-                    <OverlayArtCard
-                      key={idx}
-                      art={art}
-                      onLikeClick={handleLikeClick}
-                      onArtChange={handleArtChange}
-                    />
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <OverlayArtCard
+                        key={idx}
+                        art={art}
+                        onLikeClick={handleLikeClick}
+                        onArtChange={handleArtChange}
+                      />
+                    </div>
                   </Col>
                 ))}
               </Row>
@@ -292,7 +304,7 @@ const Home = () => {
             />
           </Stack>
         )}
-      </Container>
+      </Container> */}
     </>
   );
 };
