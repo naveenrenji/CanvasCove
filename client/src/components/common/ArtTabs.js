@@ -155,11 +155,21 @@ const ArtTabs = ({ user, defaultTab = ART_TABS.LIKED_ART }) => {
                 lg={4}
                 className="mb-4"
               >
-                <OverlayArtCard
-                  art={art}
-                  onArtChange={handleArtChange}
-                  onLikeClick={handleLikeClick}
-                />
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <OverlayArtCard
+                    art={art}
+                    onArtChange={handleArtChange}
+                    onLikeClick={handleLikeClick}
+                  />
+                </div>
               </Col>
             ))}
           </Row>

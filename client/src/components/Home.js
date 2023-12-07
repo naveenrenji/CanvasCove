@@ -121,8 +121,8 @@ const Home = () => {
     });
   };
 
-  const handleOnFireArtNextClick = () => onOnFireArtPageChange(page + 1);
-  const handleOnFireArtPrevClick = () => onOnFireArtPageChange(page - 1);
+  const handleOnFireArtNextClick = () => onOnFireArtPageChange(onFireArtPage + 1);
+  const handleOnFireArtPrevClick = () => onOnFireArtPageChange(onFireArtPage - 1);
   const onOnFireArtPageChange = async (newPage) => {
     setOnFireArtPage(newPage);
   };
@@ -265,7 +265,7 @@ const Home = () => {
               style={{ color: "white" }}
             />
             {onFireArt.length ? (
-              <Row>
+              <Row style={{ width: "100%" }}>
                 {onFireArt.map((art, idx) => (
                   <Col key={idx} xs={12} md={4} lg={3}>
                     <OverlayArtCard

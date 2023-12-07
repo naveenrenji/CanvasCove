@@ -57,7 +57,7 @@ const ImageModal = ({
         </Carousel>
         {editable ? (
           <div>
-            {images?.length ? (
+            {images?.length && multiple ? (
               <div className="d-grid mb-2 mt-2">
                 {images[index]?.shouldDelete ? (
                   <Button
@@ -88,40 +88,36 @@ const ImageModal = ({
             ) : (
               <></>
             )}
-            {!multiple && images.length === 1 ? (
-              <></>
-            ) : (
-              <Form.Group className="mb-3 form-group" controlId="formImage">
-                <Form.Label>Upload New Image</Form.Label>
-                <Form.Control
-                  type="file"
-                  name="image"
-                  multiple={multiple}
-                  onChange={(e) => {
-                    const files = Array.from(e.target.files);
-                    setImages((prevImages) => {
-                      return multiple
-                        ? [
-                            ...prevImages,
-                            ...files.map((file) => ({
-                              file,
-                              url: URL.createObjectURL(file),
-                              name: file.name,
-                            })),
-                          ]
-                        : [
-                            ...prevImages,
-                            {
-                              file: files[0],
-                              name: files[0].name,
-                              url: URL.createObjectURL(files[0]),
-                            },
-                          ];
-                    });
-                  }}
-                />
-              </Form.Group>
-            )}
+            <Form.Group className="mb-3 form-group" controlId="formImage">
+              <Form.Label>Upload New Image</Form.Label>
+              <Form.Control
+                type="file"
+                name="image"
+                multiple={multiple}
+                onChange={(e) => {
+                  const files = Array.from(e.target.files);
+                  setImages((prevImages) => {
+                    return multiple
+                      ? [
+                          ...prevImages,
+                          ...files.map((file) => ({
+                            file,
+                            url: URL.createObjectURL(file),
+                            name: file.name,
+                          })),
+                        ]
+                      : [
+                          {
+                            file: files[0],
+                            name: files[0].name,
+                            url: URL.createObjectURL(files[0]),
+                          },
+                        ];
+                  });
+                  setIndex(multiple ? images.length : 0);
+                }}
+              />
+            </Form.Group>
           </div>
         ) : null}
       </Modal.Body>

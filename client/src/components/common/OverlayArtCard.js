@@ -48,7 +48,7 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
   };
 
   return (
-    <Card className="text-white card-hover-overlay">
+    <Card className="text-white card-hover-overlay w-100">
       <CommentsModal
         show={showComments}
         handleClose={onToggleShowComments}
@@ -61,11 +61,13 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
         className="d-block"
         src={art.images?.[0]?.url || PlaceholderImage}
         alt={art.images?.[0]?.name || "Placeholder"}
+        title={art.images?.[0]?.name || "Placeholder"}
         style={{
-          objectFit: "cover",
+          objectFit: "contain",
           margin: "auto",
-          maxHeight: "100%",
-          maxWidth: "100%",
+          ...(fullPage
+            ? { maxHeight: "75vh" }
+            : { height: "25vh", maxWidth: "100%" }),
         }}
       />
       <Card.ImgOverlay
