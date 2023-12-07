@@ -1479,7 +1479,7 @@ export const getArt = async (currentUser, artId, forUpdate = false) => {
   let result, art;
 
   try {
-    const art = await Art.findById(artId);
+    const initialArt = await Art.findById(artId);
     result = forUpdate
       ? await Art.aggregate([
           {
@@ -1519,7 +1519,7 @@ export const getArt = async (currentUser, artId, forUpdate = false) => {
       : await Art.withMetrics(currentUser, {
           $match: {
             _id: new mongoose.Types.ObjectId(artId),
-            ...(art.artist.toString() === currentUser._id.toString()
+            ...(initialArt.artist.toString() === currentUser._id.toString()
               ? {}
               : { isVisible: true }),
           },

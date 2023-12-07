@@ -6,13 +6,19 @@ import { Button, Stack } from "react-bootstrap";
 import { INTERACTION_TYPES } from "../../constants";
 import { PlaceholderImage } from "../../assets";
 import { userApi } from "../../api";
+import useAuth from "../../useAuth";
 
 import IconButton from "./IconButton";
 import CommentsModal from "./CommentsModal";
 
 const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
+  const auth = useAuth();
   const navigate = useNavigate();
   const [showComments, setShowComments] = React.useState(false);
+
+  const isOwner = React.useMemo(() => {
+    return art?.artist?._id === auth?.user?._id;
+  }, [art, auth?.user]);
 
   const onToggleShowComments = React.useCallback((e) => {
     e.stopPropagation();
@@ -98,6 +104,20 @@ const OverlayArtCard = ({ art, onArtChange, onLikeClick, fullPage }) => {
               </div>
               <div>
                 <Stack direction="horizontal" gap={1}>
+                  {isOwner ? (
+                    <IconButton
+                      icon="pencil-fill"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        navigate(`/art/${art._id}/edit`);
+                      }}
+                      title="Edit"
+                      className="p-2 bg-white elevated"
+                    />
+                  ) : (
+                    <></>
+                  )}
                   <IconButton
                     icon={"heart" + (userLiked ? "-fill" : "")}
                     onClick={(e) => {
