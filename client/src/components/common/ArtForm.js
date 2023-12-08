@@ -149,6 +149,16 @@ const ArtForm = ({ art = {}, onSuccess }) => {
     }
   };
 
+  const resetForm = () => {
+    setTitle({ value: art.title || "", error: "" });
+    setDescription({ value: art.description || "", error: "" });
+    setArtType({ value: art.artType || "", error: "" });
+    setPrice({ value: art.priceInCents ? art.priceInCents / 100 : "", error: "" });
+    setVisibility({ value: art.visibility || ART_VISIBILITY.PUBLIC, error: "" });
+    setIsVisible({ value: art.isVisible || false, error: "" });
+    setImages({ value: art.images || [], error: "" }); 
+  };
+
   return (
     <Container fluid="md">
       {loading ? (
@@ -311,7 +321,12 @@ const ArtForm = ({ art = {}, onSuccess }) => {
               {isEditing ? "Update" : "Create"}
             </Button>
 
-            <Button variant="secondary" type="reset" className="me-3">
+            <Button
+              variant="secondary"
+              type="reset"
+              className="me-3"
+              onClick={resetForm}
+            >
               Reset
             </Button>
 

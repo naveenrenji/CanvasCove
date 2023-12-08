@@ -8,7 +8,9 @@ import {
     validateName,
     validateEmail,
     validatePassword,
-    validateConfirmPassword
+    validateConfirmPassword,
+    setToStorage,
+    clearFromStorage
 } from "../helpers";
 import { Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
 import { authAPI, userApi } from "../api";
@@ -107,7 +109,13 @@ const Signup = () => {
 
             const imagesToAddCount = imagesToAdd.length;
             if (imagesToAddCount > 0) {
-                await userApi.uploadImageApi(res._id, imagesToAdd[0], { accesstoken: res.accesstoken  });
+                try {
+                    setToStorage(process.env.REACT_APP_USER_ACCESS_TOKEN_KEY, res.accesstoken);
+                    await userApi.uploadImageApi(res._id, imagesToAdd[0]);
+                } catch (e) {
+                    clearFromStorage(process.env.REACT_APP_USER_ACCESS_TOKEN_KEY)
+                    throw e
+                }
             }
 
             await auth.signIn(res?.accesstoken, async () => {
